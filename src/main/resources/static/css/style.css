@@ -1,0 +1,341 @@
+/* --- BASE HTML --- */
+/* --- Global Layout Settings --- */
+body {
+    /* Navbar ki height ke hisab se padding taaki content na dabe */
+    padding-top: 80px !important; 
+    background-color: #fdfdfd; /* Thoda off-white professional look */
+}
+
+
+/* style.css - Clean Reset */
+:root {
+    --primary-color: #007bff; /* Aapka brand color */
+    --secondary-color: #6c757d;
+}
+
+html{
+    scroll-behavior: smooth;
+}
+
+.custom-navbar {
+    background-color: #2c3e50 !important; /* Deep Blue/Black professional look */
+    border-bottom: 2px solid var(--primary-color);
+}
+
+/* Footer ko background aur text color do */
+footer.footer {
+    background-color: #212529;
+    color: #adb5bd;
+}
+
+footer.footer a {
+    color: #ffffff;
+    transition: 0.3s;
+}
+
+footer.footer a:hover {
+    color: var(--primary-color);
+}
+
+/* Form Cards responsiveness ke liye padding */
+.signup-card, .login-card {
+    border-radius: 15px;
+    border: none;
+}
+
+/* Button style */
+.btn-premium {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+}
+
+
+/* --- Premium Hover Animation --- */
+.nav-link, .footer-links a {
+    position: relative;
+    text-decoration: none !important;
+    transition: color 0.3s ease;
+}
+
+/* Hover par text color thoda light karne ke liye (Optional) */
+.nav-link:hover, .footer-links a:hover {
+    color: #ffffff !important; 
+}
+
+/* Niche wali line ka setup (Invisible initially) */
+.nav-link::after, .footer-links a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px; /* Line ki thickness */
+    bottom: -2px; /* Link se kitni niche rahegi */
+    left: 50%; /* Center se shuru hogi */
+    background-color: #00d4ff; /* Line ka color (Cyan/Blue sexy lagega) */
+    transition: all 0.4s ease-in-out;
+    transform: translateX(-50%); /* Center alignment fix */
+}
+
+/* Hover karne par line center se bahar niklegi */
+.nav-link:hover::after, .footer-links a:hover::after {
+    width: 80%; /* Kitni lambi line chahiye (100% bhi kar sakte ho) */
+}
+
+/* Active link ke liye hamesha line dikhane ke liye (Optional) */
+.nav-link.active::after {
+    width: 80%;
+    background-color: #ffffff;
+}
+
+
+/* Footer Social Icons Style */
+.footer-social-icons a {
+    color: #ffffff;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Bounce animation curve */
+    display: inline-block; /* Animation ke liye zaroori hai */
+    text-decoration: none;
+}
+
+/* Hover par Bounce Effect */
+.footer-social-icons a:hover {
+    color: #00d4ff !important; /* Cyan color on hover */
+    transform: translateY(-5px) scale(1.2); /* Upar jayega aur thoda bada hoga */
+}
+
+/* Footer Links (Home, About etc) ka Styling */
+.footer-links a {
+    color: rgba(255, 255, 255, 0.8) !important; /* Thoda soft white */
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #ffffff !important;
+    letter-spacing: 1px; /* Hover par letters thode failenge (Premium feel) */
+}
+.my-name{
+    font-size: 12px;
+    color: #212529;
+}
+
+
+/* --- Mobile Navigation Styling (Responsiveness) --- */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        /* Aapka custom-navbar color yahan match karein */
+        background-color: #343a40; 
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-top: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* Mobile menu pe thoda shadow sexy lagega */
+    }
+    
+    /* Mobile pe links ke beech gap */
+    .navbar-nav .nav-link {
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .navbar-nav .nav-item:last-child .nav-link {
+        border-bottom: none;
+    }
+}
+
+/* --- HOME HTML --- */
+.banner h1 {
+     letter-spacing: -1px;
+    background: linear-gradient(45deg, #2c3e50, #000000);
+    
+    /* Vendor prefix for Safari/Chrome */
+    -webkit-background-clip: text;
+    
+    /* Standard property for compatibility (Fix) */
+    background-clip: text; 
+    
+    -webkit-text-fill-color: transparent;
+}
+
+/* Hero Image Floating Animation */
+.hero-img {
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Mobile pe Image thodi choti rahe */
+@media (max-width: 991.98px) {
+    .hero-img {
+        max-height: 300px !important;
+        margin-top: 20px;
+    }
+    .banner {
+        padding-top: 100px;
+        padding-bottom: 50px;
+    }
+}
+
+/* --- SIGNUP HTML --- */
+/* Card Animation on Load */
+.signup-card {
+    animation: fadeInUp 0.8s ease-out;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px); /* Modern Blur Effect */
+}
+
+/* Input Focus Glow */
+.form-control:focus {
+    box-shadow: none;
+    background-color: #ffffff !important;
+    border-color: #007bff !important;
+}
+
+.input-group-text {
+    border: 1px solid #ced4da;
+}
+
+/* Button Premium Hover */
+.btn-premium {
+    background: linear-gradient(45deg, #007bff, #00d4ff);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-premium:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3);
+    color: white;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- LOGIN HTML --- */
+/* Login Card specific hover effects */
+.login-card {
+    transition: transform 0.3s ease;
+}
+
+/* Subtle focus on the card */
+.login-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Input group styling for a cleaner look */
+.input-group .form-control {
+    font-size: 0.95rem;
+}
+
+.input-group-text i {
+    font-size: 0.85rem;
+}
+
+/* --- ABOUT HTML --- */
+/* About Page Specific */
+.letter-spacing-1 {
+    letter-spacing: 2px;
+}
+
+.rounded-4 {
+    border-radius: 1.5rem !important;
+}
+
+/* Contact Form Input Styling */
+.contact-section .form-control:focus {
+    background-color: #ffffff !important;
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.1);
+    border: 1px solid #007bff !important;
+}
+
+/* Social Icons in Contact Section */
+.social-links a:hover {
+    color: #00d4ff !important;
+    transform: scale(1.2);
+}
+
+/* Contact Input Styling - Boundary fix */
+.contact-input {
+    background-color: #fcfcfc !important; /* Bahut halka grey */
+    border: 1px solid #e0e0e0 !important; /* Light Border dikhne ke liye */
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+/* Focus hone par border chamkega */
+.contact-input:focus {
+    background-color: #ffffff !important;
+    border-color: #007bff !important; /* Blue border on click */
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.15) !important;
+    outline: none;
+}
+
+/* Email text break fix for mobile/small cards */
+.text-break {
+    word-break: break-all;
+    line-height: 1.4;
+}
+
+/* Left side dark part scaling for mobile */
+@media (max-width: 768px) {
+    .bg-dark {
+        border-radius: 20px 20px 0 0 !important;
+        padding: 30px !important;
+    }
+}
+
+
+/* google button css */
+
+.gsi-material-button {
+  flex: 1; 
+  background-color: white;
+  border: 1px solid #747775;
+  color: #1f1f1f;
+  font-family: 'Roboto', arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 12px;
+  text-decoration: none !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border-radius: 50px !important; 
+  height: 42px !important;
+  margin-top: 0 !important; 
+}
+.gsi-material-button:hover { background-color: #f2f2f2; box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15); }
+.gsi-material-button-icon { height: 20px; width: 20px; margin-right: 12px; }
+.gsi-material-button-contents { overflow: hidden; text-overflow: ellipsis; vertical-align: top; }
+
+.gsi-material-button-content-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.btn-dark.rounded-pill {
+    flex: 1; 
+    height: 42px !important;
+    background-color: #24292e !important;
+    border: none;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.fa-github {
+    margin-right: 8px;
+}

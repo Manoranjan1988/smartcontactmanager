@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{dashboard}">
+
+<head>
+    <title th:text="${title}">Dashboard | SCM</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div th:if="${msg}">
+            <input type="hidden" id="msg-box" th:value="${msg}" />
+            <input type="hidden" id="type-box" th:value="${type}" />
+        </div>
+        <section class="flex items-center justify-center min-h-[80vh] p-4">
+            <div
+                class="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
+
+                <!-- Header Decor -->
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-center relative">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fa-solid fa-hand-holding-heart text-6xl text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-2">Support SCM Project</h2>
+                    <p class="text-blue-100 text-sm">Your small contribution plays a big role in helping us grow</p>
+                </div>
+
+                <!-- Form Area -->
+                <div class="p-8 space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-500 dark:text-gray-400 ml-1">Enter Amount
+                            (INR)</label>
+                        <div class="relative group">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500 transition">
+                                <i class="fa-solid fa-indian-rupee-sign"></i>
+                            </div>
+                            <input type="number" id="donation-amount" placeholder="500"
+                                class="block w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700/50 border-2 border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-gray-800 rounded-2xl outline-none transition duration-300 text-xl font-bold text-gray-700 dark:text-white" />
+                        </div>
+                    </div>
+
+                    <!-- Quick Selection Chips -->
+                    <div class="flex justify-between gap-2">
+                        <button onclick="setAmount(100)"
+                            class="flex-1 py-3 px-3 text-sm font-semibold rounded-xl bg-[#242736] border border-white/5 text-gray-400 hover:text-white hover:bg-blue-600/20 hover:border-blue-500/30 transition">₹100</button>
+                        <button onclick="setAmount(500)"
+                            class="flex-1 py-3 px-3 text-sm font-semibold rounded-xl bg-[#242736] border border-white/5 text-gray-400 hover:text-white hover:bg-blue-600/20 hover:border-blue-500/30 transition">₹500</button>
+                        <button onclick="setAmount(1000)"
+                            class="flex-1 py-3 px-3 text-sm font-semibold rounded-xl bg-[#242736] border border-white/5 text-gray-400 hover:text-white hover:bg-blue-600/20 hover:border-blue-500/30 transition">₹1000</button>
+                    </div>
+
+                    <!-- Pay Button -->
+                    <button onclick="startDonation()" id="pay-btn"
+                        class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-500/30 transform active:scale-95 transition duration-300 flex items-center justify-center space-x-3 group">
+                        <span>Proceed to Pay</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                    </button>
+
+                    <!-- Trust Badges -->
+                    <div
+                        class="flex items-center justify-center space-x-5 opacity-40 hover:opacity-100 transition-opacity duration-500 grayscale">
+
+                        <!-- Visa Icon (Light Gray/Silver) -->
+                        <i
+                            class="fa-brands fa-cc-visa text-2xl text-gray-400 hover:text-[#1a1f71] transition-colors"></i>
+
+                        <!-- Mastercard Icon (Light Gray/Silver) -->
+                        <i
+                            class="fa-brands fa-cc-mastercard text-2xl text-gray-400 hover:text-[#eb001b] transition-colors"></i>
+
+                        <!-- Shield Icon (Light Gray/Silver) -->
+                        <i
+                            class="fa-solid fa-shield-halved text-xl text-gray-400 hover:text-green-500 transition-colors"></i>
+
+                        <span
+                            class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] whitespace-nowrap">Secure
+                            Checkout</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </div>
+</body>
+
+</html>

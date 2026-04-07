@@ -1,0 +1,108 @@
+::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
+
+.dark .bi-toggle-on {
+    color: #fbbf24 !important; /* Yellow-400 color */
+    filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.4));
+}
+
+.tox-promotion, .tox-button--naked, .tox-statusbar__branding {
+    display: none !important;
+}
+
+
+/* SweetAlert Cancel Button Override */
+/* SweetAlert Confirm (Delete) Button */
+.swal2-confirm {
+    background-color: #3b82f6 !important; /* Tailwind Blue-500 */
+    color: white !important;
+    border-radius: 0.75rem !important;
+    padding: 0.7rem 2rem !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    border: none !important;
+}
+
+/* SweetAlert Cancel Button */
+.swal2-cancel {
+    background-color: #ef4444 !important; /* Tailwind Red-500 */
+    color: white !important;
+    border-radius: 0.75rem !important;
+    padding: 0.7rem 2rem !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    border: none !important;
+}
+
+/* Hover effect */
+ .swal2-cancel:hover {
+    background-color: #dc2626 !important; /* Darker Red on hover */
+}
+ .swal2-confirm:hover {
+    background-color: #0a377f !important; /* Darker Red on hover */
+}
+
+
+/* dashstyle.css */
+
+html.dark {
+    background-color: #111827; /* Tailwind's gray-900 color */
+}
+
+body {
+    visibility: visible;
+    opacity: 0;
+    animation: fadeInBody 0.4s ease-in forwards;
+}
+/* Custom Smooth Entry Animation */
+@keyframes fadeInBody {
+    to { opacity: 1; }
+}
+
+.page-transition {
+    animation: smoothEntry 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+
+/* Welcome Card animation - Right to Left slide + Fade */
+@keyframes slideRightToLeftWithFade {
+  0% {
+    opacity: 0;
+    transform: translateX(20px); /* Halkasa right slide starts */
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0); /* Final position is back to center */
+  }
+}
+
+.welcome-card-animation {
+  animation: slideRightToLeftWithFade 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  will-change: transform, opacity; 
+}
+
+/* dashstyle.css */
+
+.custom-modal-overlay {
+    position: fixed !important;
+    inset: 0 !important; /* Charo taraf se 0 takki puri screen cover ho */
+    background-color: rgba(0, 0, 0, 0.75) !important; /* Thoda dark background */
+    backdrop-filter: blur(4px);
+    z-index: 9999 !important; /* Sabse upar dikhne ke liye */
+    display: none; /* Default hidden */
+    align-items: center; /* Vertical Center */
+    justify-content: center; /* Horizontal Center */
+}
+
+
+.modal-active {
+    display: flex !important;
+}
+
+[x-cloak] { display: none !important; }

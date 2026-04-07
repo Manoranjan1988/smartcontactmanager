@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{base}">
+
+<head>
+    <title th:text="${title}">Sign Up - SCM</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Main Section: Flexbox for centering on all devices -->
+        <section class="signup-section d-flex align-items-center justify-content-center py-5 px-2" style="min-height: 90vh;">
+            
+            <div class="container">
+                <div class="row justify-content-center">
+                    <!-- Responsive Grid: Mobile 12, Tablet 8, Laptop 5, Desktop 4 -->
+                    <div class="col-12 col-md-8 col-lg-5 col-xl-4">
+                        
+                        <div class="card signup-card shadow-lg border-0 overflow-hidden" style="border-radius: 20px;">
+                            <div class="card-body p-0">
+
+                                <!-- Sticky Header: Branding and Progress -->
+                                <div class="text-center py-4 bg-white sticky-top border-bottom" style="z-index: 10;">
+                                    <h3 class="fw-bold mb-1 text-primary">Join Us</h3>
+                                    <p class="text-muted small mb-0 px-3">Start managing your contacts like a pro</p>
+                                </div>
+
+                                <!-- Alerts: Dynamic and Non-Layout-Breaking -->
+                                <div th:if="${msg}" class="px-4 pt-3">
+                                    <div th:classappend="${type == 'success' ? 'alert-success' : 'alert-danger'}"
+                                        class="alert py-2 px-3 mb-0 shadow-sm border-0 text-center animate__animated animate__fadeIn"
+                                        style="border-radius: 12px;" role="alert">
+                                        <div class="d-flex align-items-center justify-content-center small">
+                                            <i th:class="${type == 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'}" class="me-2"></i>
+                                            <span th:text="${msg}" class="fw-bold"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Scrollable Form Content -->
+                                <div class="p-4 pt-3">
+                                    <form th:action="@{/public/do_register}" method="post" th:object="${user}" class="needs-validation">
+
+                                        <!-- Validation Errors Summary -->
+                                        <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger py-2 px-3 mb-3 border-0 small" style="border-radius: 10px;">
+                                            <ul class="mb-0 ps-3">
+                                                <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+                                            </ul>
+                                        </div>
+
+                                        <!-- Input Groups with Premium Icons -->
+                                        <div class="mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-user-circle text-primary"></i></span>
+                                                <input type="text" th:field="*{name}" class="form-control bg-light border-start-0 ps-0" placeholder="Full Name" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-envelope text-success"></i></span>
+                                                <input type="email" th:field="*{email}" class="form-control bg-light border-start-0 ps-0" placeholder="Email Address" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-shield-alt text-info"></i></span>
+                                                <input type="password" th:field="*{password}" class="form-control bg-light border-start-0 ps-0" placeholder="Password (Min. 8 Chars)" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-comment-dots bg-warning"></i></span>
+                                                <textarea th:field="*{about}" class="form-control bg-light border-start-0 ps-0" placeholder="Tell us about yourself..." style="height: 60px"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-check mb-4">
+                                            <input class="form-check-input" type="checkbox" th:field="*{terms}" id="termsCheck" required>
+                                            <label class="form-check-label small text-muted" for="termsCheck">
+                                                I agree to the <a href="#" class="text-primary text-decoration-none fw-bold">Terms & Conditions</a>
+                                            </label>
+                                        </div>
+
+                                        <!-- 2026 Premium Button -->
+                                        <button type="submit" id="submitBtn" class="btn btn-premium w-100 py-2 rounded-pill shadow fw-bold text-uppercase letter-spacing-1">
+                                            Create Account
+                                        </button>
+
+                                        <div class="text-center mt-4">
+                                            <p class="small text-muted mb-0">Already using SCM? 
+                                                <a th:href="@{/public/login}" class="text-primary fw-bold text-decoration-none border-bottom border-primary border-2 pb-1">Login Here</a>
+                                            </p>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

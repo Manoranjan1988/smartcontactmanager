@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+
+<head>
+    <title th:text="${title}">Home - SCM</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        
+    <section class="banner d-flex align-items-center justify-content-center px-3" style="min-height: 85vh;">
+        <div class="container">
+            <div class="row align-items-center gy-5">
+                
+                <!-- Left Side: Text Content -->
+                <div class="col-lg-7 text-center text-lg-start">
+                    <h1 class="fw-bold display-3 mb-3 animate__animated animate__fadeInLeft">
+                        Smart Contact Manager
+                    </h1>
+                    <p class="lead mb-4 text-secondary">
+                        Start collecting your contacts in a very smart way. 
+                        We provide a very efficient and easy way to handle all your contacts.
+                    </p>
+                    <div class="d-flex justify-content-center justify-content-lg-start">
+                        <a th:href="@{/public/signup}" class="btn btn-premium btn-lg px-5 py-3 shadow-lg rounded-pill fw-bold">
+                            Get Started <i class="fa-solid fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Side: Your Transparent Image -->
+                <div class="col-lg-5 text-center animate__animated animate__fadeInRight">
+                    <img th:src="@{/image/homeimage.jpg}" alt="SCM Illustration" 
+                         class="img-fluid hero-img" 
+                         style="max-height: 450px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));">
+                </div>
+                
+            </div>
+        </div>
+        <div th:if="${msgTitle}">
+            <input type="hidden" id="msg-box" th:value="${msgDash}" />
+            <input type="hidden" id="type-box" th:value="${msgType}" />
+            <input type="hidden" id="title-box" th:value="${msgTitle}" />
+        </div>
+    </section>
+</div>
+
+</body>
+</html>

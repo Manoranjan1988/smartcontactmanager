@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+                xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+                layout:decorate="~{dashboard}">
+
+<head>
+    <title th:text="${title}">Manage Users | SCM</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div th:if="${msg}">
+            <input type="hidden" id="msg-box" th:value="${msg}" />
+            <input type="hidden" id="type-box" th:value="${type}" />
+        </div>
+        
+        <div class="animate__animated animate__fadeIn">
+            <div class="max-w-6xl mx-auto py-8">
+        
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 px-4">
+            <div>
+                <h1 class="text-3xl font-black text-white tracking-tight">Super Admin Dashboard</h1>
+                <p class="text-gray-400 text-sm mt-1 uppercase tracking-widest font-bold">Manage System Users & Security</p>
+            </div>
+            <!-- Stats in Header -->
+            <div class="flex gap-4">
+                <div class="bg-gray-800/50 px-6 py-3 rounded-2xl border border-gray-700/50">
+                    <span class="text-xs text-gray-500 font-bold uppercase block">Total Users</span>
+                    <span class="text-xl font-black text-blue-500" th:text="${users.size()}">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table Card -->
+        <div class="bg-gray-800/40 backdrop-blur-md rounded-[2.5rem] border border-gray-700/50 overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-900/50">
+                        <tr>
+                            <th class="p-6 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">User Profile</th>
+                            <th class="p-6 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Contact Info</th>
+                            <th class="p-6 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Account Status</th>
+                            <th class="p-6 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Role</th>
+                            <th class="p-6 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] text-center">Super Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700/30">
+                        <tr th:each="u : ${users}" class="hover:bg-gray-700/20 transition-colors group">
+                            <!-- Profile Col -->
+                            <td class="p-6">
+                                <div class="flex items-center gap-4">
+                                    <img th:src="${u.image == null or u.image == 'default.png'} 
+                                        ? @{/image/default_profile.png} 
+                                        : (${#strings.startsWith(u.image, 'http')} 
+                                        ? ${u.image} 
+                                        : @{'/profile-pics/' + ${u.image}})" 
+                                         class="w-12 h-12 rounded-2xl object-cover ring-2 ring-gray-700 group-hover:ring-blue-500/50 transition-all shadow-lg">
+                                    <div>
+                                        <p class="font-black text-white text-sm" th:text="${u.name}">User Name</p>
+                                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">SCM ID: <span th:text="${u.id}">0</span></p>
+                                    </div>
+                                </div>
+                            </td>
+                            <!-- Email Col -->
+                            <td class="p-6">
+                                <div class="flex items-center gap-2 text-gray-400">
+                                    <i class="fa-solid fa-envelope text-xs text-blue-500/50"></i>
+                                    <span class="text-xs font-medium" th:text="${u.email}">user@email.com</span>
+                                </div>
+                            </td>
+                            <!-- Status Badge Col -->
+                            <td class="p-6">
+                                <span th:if="${u.status == 'active'}" 
+                                      class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/10 text-green-500 text-[10px] font-black uppercase tracking-wider border border-green-500/20">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Active
+                                </span>
+                                <span th:if="${u.status == 'inactive'}" 
+                                      class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-wider border border-red-500/20">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Inactive
+                                </span>
+                            </td>
+                            <!-- Role Col -->
+                            <td class="p-6">
+                                <span class="text-[10px] font-black text-blue-400 border border-blue-400/20 px-2 py-0.5 rounded-md uppercase tracking-tighter bg-blue-400/5" 
+                                      th:text="${u.role}">ROLE_USER</span>
+                            </td>
+                            <!-- Action Col -->
+                            <td class="p-6 text-center">
+                                <div class="flex justify-center gap-3">
+                                    <!-- Toggle Status Button -->
+                                    <a th:href="@{'/admin/update-status/' + ${u.id}}" 
+                                       th:title="${u.status == 'active' ? 'Deactivate User' : 'Activate User'}"
+                                       class="w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg hover:scale-110 active:scale-95"
+                                       th:classappend="${u.status == 'active'} ? 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white' : 'bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white'">
+                                        <i th:class="${u.status == 'active'} ? 'fa-solid fa-user-slash' : 'fa-solid fa-user-check'"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Footer Info -->
+            <div class="bg-gray-900/30 p-4 text-center">
+                <p class="text-[9px] text-gray-600 font-bold uppercase tracking-[0.3em]">SCM Administrative Control Panel - 2026</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    </div>
+</body>
+</html>

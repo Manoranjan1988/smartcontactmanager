@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz"
+    layout:decorate="~{dashboard}">
+
+<head>
+    <title th:text="${title}">View Contacts | SCM</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="animate__animated animate__fadeIn">
+        <div th:if="${msg}">
+            <input type="hidden" id="msg-box" th:value="${msg}" />
+            <input type="hidden" id="type-box" th:value="${type}" />
+        </div>
+
+        <div class="max-w-6xl mx-auto">
+            <!-- Table Header & Search -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800 dark:text-white">All Your Contacts</h1>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Managing <span class="font-bold text-blue-600"
+                            th:text="${contacts.totalElements}">0</span> total connections</p>
+                </div>
+
+                <!-- SEARCH FORM:  -->
+                <form th:action="@{/user/show-contacts}" method="get" class="w-full md:w-72">
+                    <!-- Default Page 0 pe hi rakhenge search ke time -->
+                    <input type="hidden" name="currentPage" value="0">
+
+                    <div class="relative w-full">
+                        <!-- Search Icon -->
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+                        </div>
+
+                        <!-- Search Input -->
+                        <input type="text" name="key" th:value="${searchkey}" placeholder="Search by name or email..."
+                            class="block w-full pl-10 pr-10 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition shadow-sm dark:text-white"
+                            onkeydown="if(event.key==='Enter'){this.form.submit();}">
+
+                        <!-- Clear Search Cross Icon (Agar kuch search kiya hai toh dikhega) -->
+                        <a th:if="${searchkey != null && searchkey != ''}"
+                            th:href="@{/user/show-contacts(currentPage=0)}"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 transition cursor-pointer">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+
+            <!-- TABLE CONTAINER -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead
+                            class="bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 uppercase text-xs font-bold">
+                            <tr>
+                                <th class="px-6 py-4">Contact</th>
+                                <th class="px-6 py-4">Phone</th>
+                                <th class="px-6 py-4 hidden md:table-cell">Work</th>
+                                <th class="px-6 py-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <!-- Loop shuru -->
+                            <tr th:each="c : ${contacts}"
+                                class="hover:bg-blue-50/50 dark:hover:bg-gray-700/30 transition group">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <!-- Image handling with External Path Mapping -->
+                                        <img th:src="${c.image != null && c.image.startsWith('http') ? c.image : '/image/default_profile.png'}"
+                                        onerror="this.src='/image/default_profile.png'"
+                                            class="w-11 h-11 rounded-2xl object-cover border-2 border-white dark:border-gray-600 shadow-sm group-hover:scale-110 transition">
+                                        <div>
+                                            <div class="font-bold text-gray-800 dark:text-white"
+                                                th:text="${c.firstName + ' ' + c.lastName}">Name</div>
+                                            <div class="text-xs text-gray-500 flex items-center gap-1">
+                                                <i class="fa-solid fa-envelope text-[10px]"></i>
+                                                <span th:text="${c.email}">email@test.com</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        th:text="${c.phone}">9876543210</span>
+                                </td>
+                                <td class="px-6 py-4 hidden md:table-cell">
+                                    <span
+                                        class="px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-full text-xs font-bold"
+                                        th:text="${c.work}">Developer</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center gap-5">
+
+                                        <!-- Favorite MARK -->
+                                        <a th:href="@{'/user/toggle-favorite/' + ${c.cid}}"
+                                            th:title="${c.favorite ? 'Remove from Favorite' : 'Mark as Favorite'}"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 transform hover:scale-125 focus:outline-none group">
+                                            <i th:if="${c.favorite}"
+                                                class="fa-solid fa-star text-xl text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]"></i>
+
+                                            <i th:unless="${c.favorite}"
+                                                class="fa-regular fa-star text-xl text-gray-400 group-hover:text-yellow-500"></i>
+                                        </a>
+                                        <!-- VIEW ICON -->
+                                        <button type="button"
+                                            class="view-btn text-blue-500 hover:text-blue-700 transition transform hover:scale-125"
+                                            th:data-name="${c.firstName + ' ' + c.lastName}" th:data-email="${c.email}"
+                                            th:data-phone="${c.phone}" th:data-work="${c.work}"
+                                            th:data-image="${c.image}">
+                                            <i class="fa-solid fa-eye text-lg"></i>
+                                        </button>
+
+                                        <!-- EDIT ICON -->
+                                        <a th:href="@{'/user/update-contact/' + ${c.cid}}" title="Edit Contact"
+                                            class="text-green-500 hover:text-green-700 transition transform hover:scale-125 cursor-pointer">
+                                            <i class="fa-solid fa-pen-to-square text-lg"></i>
+                                        </a>
+
+                                        <!-- DELETE ICON -->
+                                        <a th:onclick="|deleteContact(${c.cid})|" title="Delete Contact"
+                                            class="text-red-500 hover:text-red-700 transition transform hover:scale-125 cursor-pointer">
+                                            <i class="fa-solid fa-trash-can text-lg"></i>
+                                        </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAGINATION CONTROLS -->
+                <div
+                    class="px-6 py-4 bg-gray-50 dark:bg-gray-700/30 border-t dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <span class="text-sm text-gray-500 dark:text-gray-400">
+                        Page <span class="font-bold text-gray-800 dark:text-white" th:text="${currentPage + 1}">1</span>
+                        of <span class="font-bold text-gray-800 dark:text-white" th:text="${totalPages}">10</span>
+                    </span>
+
+                    <nav class="inline-flex shadow-sm rounded-xl overflow-hidden border dark:border-gray-600">
+                        <!-- Previous Page Link -->
+                        <a th:if="${currentPage != 0}"
+                            th:href="@{/user/show-contacts(currentPage=${currentPage - 1}, key=${searchkey})}"
+                            class="px-4 py-2 bg-white dark:bg-gray-800 text-gray-500 hover:bg-gray-100 transition">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+
+                        <!-- Page Numbers Loop -->
+                        <div th:each="i : ${#numbers.sequence(1, totalPages)}" th:if="${totalPages > 0}">
+                            <a th:href="@{/user/show-contacts(currentPage=${i-1}, key=${searchkey})}"
+                                th:classappend="${currentPage == i-1 ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 hover:bg-gray-100'}"
+                                class="px-4 py-2 text-sm font-bold border-r last:border-r-0 transition block">
+                                <span th:text="${i}"></span>
+                            </a>
+                        </div>
+
+                        <!-- Next Page Link -->
+                        <a th:if="${currentPage + 1 != totalPages}"
+                            th:href="@{/user/show-contacts(currentPage=${currentPage + 1}, key=${searchkey})}"
+                            class="px-4 py-2 bg-white dark:bg-gray-800 text-gray-500 hover:bg-gray-100 transition">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    </div>
+</body>
+
+</html>
