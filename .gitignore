@@ -45,3 +45,5 @@ Thumbs.db
 # Sensitive configs
 application.properties
 application.yml
+
+personal/
