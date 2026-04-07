@@ -59,7 +59,7 @@ A full-stack **Spring Boot based Contact Management System** with unified authen
 | Backend    | Spring Boot              |
 | Security   | Spring Security + OAuth2 |
 | Database   | MySQL                    |
-| Frontend   | Thymeleaf + Bootstrap    |
+| Frontend   | Thymeleaf + Tailwind-CSS |
 | Cloud      | Cloudinary               |
 | Payment    | Razorpay                 |
 | Deployment | Render                   |
