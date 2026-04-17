@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.smartcontact.dto.ContactFormDTO;
 import com.smartcontact.entities.Contact;
 import com.smartcontact.entities.User;
 import com.smartcontact.exception.DuplicateContactException;
@@ -49,23 +50,24 @@ public class UserController {
     private EmailService emailService;
 
     @ModelAttribute
-    public void commonData(Model model, Principal principal,Authentication authentication) {
+    public void commonData(Model model, Principal principal, Authentication authentication) {
 
-        if (principal == null){
+        if (principal == null) {
             return;
         }
         String email = principal.getName();
         User user = userService.getUserByEmail(email);
         if (user != null) {
             model.addAttribute("user", user);
-            model.addAttribute("contactCount", contactService.getContactCount(principal));
-            model.addAttribute("favCount", contactService.favoriteCount(principal));
+            model.addAttribute("contactCount", contactService.getContactCount(user));
+            model.addAttribute("favCount", contactService.favoriteCount(user));
             model.addAttribute("profileStrength", contactService.getProfileStrength(user));
         }
     }
 
     @GetMapping("/dashboard_home")
-    public String dashboard(Model model, HttpSession session,HttpServletRequest request,Principal principal) {
+    public String dashboard(Model model, HttpSession session, HttpServletRequest request, Principal principal) {
+
         String email = principal.getName();
         log.info("Welcome to dashboard: Mr. {} ", email);
         String sMsg = (String) session.getAttribute("session_msg");
@@ -85,16 +87,17 @@ public class UserController {
     @GetMapping("/add-contact")
     public String addContact(Model model) {
         model.addAttribute("title", "Add Contact | SCM");
-        model.addAttribute("contact", new Contact());
+        model.addAttribute("contactFormDTO", new ContactFormDTO());
+        model.addAttribute("isUpdate", false);
         return "user/add-contact";
     }
 
     @PostMapping("/processContact")
     public String processContact(
-            @Valid @ModelAttribute("contact") Contact contact,
+            @Valid @ModelAttribute("contactFormDTO") ContactFormDTO contactFormDTO,
             BindingResult br, Model model, RedirectAttributes ra, Principal principal,
-            HttpSession session,@RequestParam("contactimage") MultipartFile file) {
-            
+            HttpSession session, @RequestParam("contactimage") MultipartFile file) {
+
         if (br.hasErrors()) {
             String allErrors = br.getFieldErrors().stream()
                     .map(e -> e.getDefaultMessage())
@@ -102,40 +105,44 @@ public class UserController {
 
             model.addAttribute("msg", allErrors);
             model.addAttribute("type", "error");
+            model.addAttribute("isUpdate", false);
             return "/user/add-contact";
         }
 
         if (!file.isEmpty()) {
-            String contentType = file.getContentType();
-            if (!(contentType.equals("image/jpg") ||
-                    contentType.equals("image/png") ||
-                    contentType.equals("image/jpeg"))) {
+            String filename = file.getOriginalFilename();
+            if (filename == null ||
+                    !(filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png"))) {
 
                 model.addAttribute("msg", "Only JPG, JPEG & PNG files are allowed!");
                 model.addAttribute("type", "error");
+                model.addAttribute("isUpdate", false);
                 return "user/add-contact";
             }
         }
         try {
-            contactService.saveContact(contact, file, principal);
+            contactService.saveContact(contactFormDTO, file, principal);
             ra.addFlashAttribute("msg", "Contact successfully added!");
             ra.addFlashAttribute("type", "success");
         } catch (DuplicateContactException dc) {
             model.addAttribute("msg", dc.getMessage());
             model.addAttribute("type", "error");
+            model.addAttribute("isUpdate", false);
             return "user/add-contact";
         } catch (Exception e) {
             String msg = e.getMessage();
             if (msg != null && (msg.contains("Duplicate entry") || msg.contains("1062")
                     || msg.contains("ConstraintViolation"))) {
                 log.error("Error in process contact:", msg);
-                ra.addFlashAttribute("msg", "Contact successfully added!");
-                ra.addFlashAttribute("type", "success");
-                return "redirect:/user/add-contact";
+                model.addAttribute("msg", "Contact successfully added!");
+                model.addAttribute("type", "success");
+                model.addAttribute("isUpdate", false);
+                return "user/add-contact";
             }
-            log.error("Exception in Process Contact: " + e);
+            log.error("Exception in Process Contact: ", e);
             model.addAttribute("msg", "Something went Wrong");
             model.addAttribute("type", "error");
+            model.addAttribute("isUpdate", false);
             return "user/add-contact";
         }
 
@@ -220,19 +227,31 @@ public class UserController {
         if (!contact.getUser().getId().equals(user.getId())) {
             return "redirect:/user/show-contacts";
         }
-        model.addAttribute("contact", contact);
+
+        ContactFormDTO dto = new ContactFormDTO();
+        dto.setFirstName(contact.getFirstName());
+        dto.setLastName(contact.getLastName());
+        dto.setEmail(contact.getEmail());
+        dto.setPhone(contact.getPhone());
+        dto.setWork(contact.getWork());
+        dto.setDescription(contact.getDescription());
+        dto.setFavorite(contact.isFavorite());
+
+        model.addAttribute("contactFormDTO", dto);
+        model.addAttribute("cid", cid);
         model.addAttribute("isUpdate", true);
         return "user/add-contact";
     }
 
     @PostMapping("/processUpdate")
     public String updateContacthandler(
-            @Valid @ModelAttribute("contact") Contact contact,
+            @RequestParam("cid") Long cid,
+            @Valid @ModelAttribute("contactFormDTO") ContactFormDTO contactFormDTO,
             BindingResult br, Model model, RedirectAttributes ra, Principal principal,
             @RequestParam("contactimage") MultipartFile file) {
 
         User user = userService.getUserByEmail(principal.getName());
-        Contact contactId = contactService.getContactById(contact.getCid());
+        Contact contactId = contactService.getContactById(cid);
         if (br.hasErrors()) {
             String allErrors = br.getFieldErrors().stream()
                     .map(e -> e.getDefaultMessage())
@@ -241,18 +260,19 @@ public class UserController {
             model.addAttribute("msg", allErrors);
             model.addAttribute("type", "error");
             model.addAttribute("isUpdate", true);
+            model.addAttribute("cid", cid);
+            model.addAttribute("contactFormDTO", contactFormDTO);
             return "/user/add-contact";
         }
 
         if (!file.isEmpty()) {
-            String contentType = file.getContentType();
-            if (!(contentType.equals("image/jpg") ||
-                    contentType.equals("image/png") ||
-                    contentType.equals("image/jpeg"))) {
+            String filename = file.getOriginalFilename().toLowerCase();
 
+            if (!(filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png"))) {
                 model.addAttribute("msg", "Only JPG, JPEG & PNG files are allowed!");
                 model.addAttribute("type", "error");
-                model.addAttribute("isUpdate", true);
+                model.addAttribute("cid", cid);
+                model.addAttribute("contactFormDTO", contactFormDTO);
                 return "user/add-contact";
             }
         }
@@ -265,23 +285,27 @@ public class UserController {
         try
 
         {
-            contactService.updateContact(contact, file, principal);
+            contactService.updateContact(cid, contactFormDTO, file, principal);
             ra.addFlashAttribute("msg", "Contact Update Sucessfully");
             ra.addFlashAttribute("type", "success");
             return "redirect:/user/show-contacts";
         } catch (DuplicateContactException de) {
-            log.error("Error Msg" +de.getMessage());
+            log.error("Error Msg: {} ", de.getMessage());
             model.addAttribute("msg", de.getMessage());
             model.addAttribute("type", "error");
             model.addAttribute("isUpdate", true);
+            model.addAttribute("cid", cid);
+            model.addAttribute("contactFormDTO", contactFormDTO);
             return "user/add-contact";
         }
 
         catch (Exception e) {
-            log.error("Exception in Update Contact" +e);
+            log.error("Exception in Update Contact", e);
             model.addAttribute("msg", "Something went Wrong");
             model.addAttribute("type", "error");
             model.addAttribute("isUpdate", true);
+            model.addAttribute("cid", cid);
+            model.addAttribute("contactFormDTO", contactFormDTO);
             return "user/add-contact";
         }
 
@@ -352,7 +376,7 @@ public class UserController {
     public String resetPasswordHandler(
             @RequestParam(value = "clear", required = false) String clear,
             Model model, Principal principal, HttpSession session, RedirectAttributes ra) {
-        
+
         User user = userService.getUserByEmail(principal.getName());
 
         if (!"SELF".equals(user.getProvided())) {
@@ -546,5 +570,24 @@ public class UserController {
         return "redirect:/user/dashboard_home";
 
     }
-    
+
+    @PostMapping("/delete-google-contacts")
+    public String deleteGoogleContacts(Principal principal, RedirectAttributes ra) {
+
+        User user = userService.getUserByEmail(principal.getName());
+
+        int rowsUpdated = contactService.deleteAllGoogleContacts(user.getId());
+        log.info("Deleted Contcat : {}", rowsUpdated);
+
+        if (rowsUpdated > 0) {
+            ra.addFlashAttribute("msg", "Successfully cleared " + rowsUpdated + " Google contacts");
+            ra.addFlashAttribute("type", "success");
+        } else {
+            ra.addFlashAttribute("msg", "No active Google contacts found");
+            ra.addFlashAttribute("type", "error");
+        }
+
+        return "redirect:/user/dashboard_home";
+    }
+
 }

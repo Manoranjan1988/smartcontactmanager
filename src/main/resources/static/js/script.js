@@ -144,3 +144,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+//RESEND EMAIL FOR USER ACTIVATION
+document.addEventListener("DOMContentLoaded", function() {
+    
+    const resendForm = document.getElementById("resendForm");
+    const resendBtn = document.getElementById("resendBtn");
+
+    if (resendForm && resendBtn) {
+        resendForm.addEventListener("submit", function (event) {
+            resendBtn.disabled = true;
+            resendBtn.innerText = "Sending...";
+
+            setTimeout(() => {
+                if (resendBtn) {
+                    resendBtn.innerText = "Resend Verification Email";
+                    resendBtn.disabled = false;
+                }
+            }, 5000);
+        });
+    }
+});
+
+

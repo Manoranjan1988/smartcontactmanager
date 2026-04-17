@@ -27,15 +27,19 @@ public class EmailService {
     @Value("${app.mail.from}")
     private String senderEmail;
 
-    public boolean sendVerificationEmail(String toEmail, String token, String baseurl) {
+    
+
+    public boolean sendVerificationEmail(String toEmail, String token, String baseUrl) {
         try {
             System.out.println("Email service Started.....");
             String subject = "Verify your account - Smart Contact Manager";
-            String verificationUrl = baseurl + "/public/verify?token=" + token;
+            String verificationUrl = baseUrl + "/public/verify?token=" + token;
+            log.info("The URL is: {}",verificationUrl);
 
             String message = "Dear User,\n\n"
                     + "Thank you for registering. Please click the link below to activate your account:\n"
                     + verificationUrl + "\n\n"
+                    + "Please use the latest verification email. Older links will not work.\n\n"
                     + "Regards,\nSmart Contact Manager Team";
 
             SimpleMailMessage mailMessage = new SimpleMailMessage();
@@ -44,9 +48,7 @@ public class EmailService {
             mailMessage.setSubject(subject);
             mailMessage.setText(message);
 
-            log.info("Sending email now...");
             mailSender.send(mailMessage);
-            log.info("Mail sent successfully");
             log.info("Email Sent Successfully to {} ", toEmail);
             return true;
 

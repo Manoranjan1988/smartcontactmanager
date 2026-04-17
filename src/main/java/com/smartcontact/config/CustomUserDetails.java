@@ -12,7 +12,7 @@ import com.smartcontact.entities.User;
 public class CustomUserDetails implements UserDetails {
 
     private User user;
-    
+
     public CustomUserDetails(User user) {
         super();
         this.user = user;
@@ -35,38 +35,40 @@ public class CustomUserDetails implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired(){
+    public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
-    public boolean isAccountNonLocked(){
+    public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
-    public boolean isCredentialsNonExpired(){
+    public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
-    public boolean isEnabled(){
-        return "active".equals(user.getStatus()) && (user.getVerificationToken()==null);
+    public boolean isEnabled() {
+        
+        return "active".equalsIgnoreCase(user.getStatus()) && (user.getVerificationToken() == null);
     }
 
     @Override
-    public boolean equals(Object obj){
-    if(this == obj) return true;
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
 
-    if(obj instanceof org.springframework.security.core.userdetails.UserDetails other){
-        return this.getUsername().equals(other.getUsername());
+        if (obj instanceof org.springframework.security.core.userdetails.UserDetails other) {
+            return this.getUsername().equals(other.getUsername());
+        }
+
+        return false;
     }
 
-    return false;
-}
-
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return this.getUsername().hashCode();
     }
 

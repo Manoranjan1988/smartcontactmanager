@@ -6,10 +6,12 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.smartcontact.entities.Contact;
+import com.smartcontact.enums.ContactSource;
 
 public interface ContactRepository extends JpaRepository<Contact, Long> {
 
@@ -17,7 +19,8 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
                         "AND (LOWER(c.firstName) LIKE LOWER(CONCAT('%', :key, '%')) " +
                         "OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :key, '%')) " +
                         "OR LOWER(c.email) LIKE LOWER(CONCAT('%', :key, '%')) " +
-                        "OR c.phone LIKE %:key%)")
+                        "OR c.phone LIKE %:key%) "+
+                        "ORDER BY c.cid DESC")
 
         Page<Contact> getAllContactsWithSearch(
                         @Param("userId") Long userId,
@@ -50,4 +53,14 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
         Contact findByPhoneAndUserIdAndCidNot(@Param("phone") String phone, @Param("userId") Long userId,@Param("currentId") Long currentId);
 
         Optional<Contact> findByPhoneAndUserId(String phone, Long userId);
+
+        @Query("SELECT c.phone FROM Contact c WHERE c.user.id = :userId")
+        List<String> findPhonesByUserId(Long userId);
+         
+        @Modifying
+        @Query("UPDATE Contact c SET c.flag = false WHERE c.user.id = :userId AND c.source = :source AND c.flag = true")
+        int softDeleteAllGoogleContacts(@Param("userId") Long userId, @Param("source") ContactSource source);
+        
+        List<Contact> findByUserId(Long userId);
+
 }

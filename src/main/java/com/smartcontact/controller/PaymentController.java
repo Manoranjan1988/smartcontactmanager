@@ -2,12 +2,12 @@ package com.smartcontact.controller;
 
 import java.security.Principal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.smartcontact.entities.MyOrder;
 import com.smartcontact.entities.User;
@@ -33,6 +35,8 @@ public class PaymentController {
 
     @Autowired
     PaymentService paymentService;
+
+  
 
     @GetMapping("/donate")
     public String paymentHandler(Model model, Principal principal) {
@@ -60,9 +64,9 @@ public class PaymentController {
             User user = userService.getUserByEmail(principal.getName());
             log.info("Order request by user: {}", user.getEmail());
             int amount = Integer.parseInt(data.get("amount").toString());
-            if(amount < 1){
+            if (amount < 1) {
                 response.put("msg", "Minimum Rupees 1/- allowed");
-                response.put("status","error");
+                response.put("status", "error");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             log.info("Requested donation amount is: {}", amount);
@@ -81,17 +85,37 @@ public class PaymentController {
         }
     }
 
-   @GetMapping("/order_history")
-    public String orderHistoryHandler(Model model,Principal principal){
+    @GetMapping("/order_history")
+    public String orderHistoryHandler(
+            @RequestParam(defaultValue = "0") int currentPage,
+            Model model, Principal principal,RedirectAttributes ra) {
 
         String email = principal.getName();
         if (email == null) {
             return "redirect:/public/login";
         }
-        User user = userService.getUserByEmail(email);
+        if (currentPage < 0) {
+            currentPage = 0;
+        }
+        User user = userService.getUserByEmail(principal.getName());
         model.addAttribute("user", user);
-        List<MyOrder> allOrders = paymentService.getAllOrders(email);
-        model.addAttribute("orders",allOrders);
-        return "user/order_history";
+
+        try {
+            Page<MyOrder> allOrders = paymentService.getAllOrders(currentPage, email);
+
+        if (currentPage >= allOrders.getTotalPages() && allOrders.getTotalPages() > 0) {
+            currentPage = allOrders.getTotalPages() - 1;
+            allOrders = paymentService.getAllOrders(currentPage, email);
+        }
+            model.addAttribute("orders", allOrders);
+            model.addAttribute("currentPage", currentPage);
+            model.addAttribute("totalPages", allOrders.getTotalPages());
+            return "user/order_history";
+        } catch (Exception e) {
+            ra.addFlashAttribute("msg", "Invalid Page! Redirecting to Home.");
+            ra.addFlashAttribute("type", "error");
+            return "redirect:/user/order_history?currentPage=0";
+        }
+        
     }
 }

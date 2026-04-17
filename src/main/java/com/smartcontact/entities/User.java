@@ -80,6 +80,9 @@ public class User {
     @Column(length = 100)
     private String providerUserId;
 
+    private int resentAttempts = 0;
+    private LocalDateTime resendBlockedUntil;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     List<Contact> contacts = new ArrayList<>();

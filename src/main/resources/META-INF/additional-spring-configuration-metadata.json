@@ -48,5 +48,45 @@
     "name": "razorpay.webhook.secret",
     "type": "java.lang.String",
     "description": "A description for 'razorpay.webhook.secret'"
+  },
+  {
+    "name": "app.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'app.base-url'"
+  },
+  {
+    "name": "\nspring.security.oauth2.client.registration.google-contacts.client-i",
+    "type": "java.lang.String",
+    "description": "A description for '\nspring.security.oauth2.client.registration.google-contacts.client-i'"
+  },
+  {
+    "name": "\nspring.security.oauth2.client.registration.google-contacts.client-secre",
+    "type": "java.lang.String",
+    "description": "A description for '\nspring.security.oauth2.client.registration.google-contacts.client-secre'"
+  },
+  {
+    "name": "\nspring.security.oauth2.client.registration.google-contacts.scop",
+    "type": "java.lang.String",
+    "description": "A description for '\nspring.security.oauth2.client.registration.google-contacts.scop'"
+  },
+  {
+    "name": "\nspring.security.oauth2.client.registration.google-contacts.authorization-grant-typ",
+    "type": "java.lang.String",
+    "description": "A description for '\nspring.security.oauth2.client.registration.google-contacts.authorization-grant-typ'"
+  },
+  {
+    "name": "\nspring.security.oauth2.client.registration.google-contacts.redirect-ur",
+    "type": "java.lang.String",
+    "description": "A description for '\nspring.security.oauth2.client.registration.google-contacts.redirect-ur'"
+  },
+  {
+    "name": "\nspring.security.oauth2.client.registration.google-contacts.client-nam",
+    "type": "java.lang.String",
+    "description": "A description for '\nspring.security.oauth2.client.registration.google-contacts.client-nam'"
+  },
+  {
+    "name": "openid,profile,email,https",
+    "type": "java.lang.String",
+    "description": "A description for 'openid,profile,email,https'"
   }
 ]}

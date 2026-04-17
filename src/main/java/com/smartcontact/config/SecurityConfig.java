@@ -5,6 +5,7 @@ import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -93,8 +94,9 @@ public class SecurityConfig {
                 )
                 .successHandler(successHandler)
                 .failureHandler(failureHandler)
-        ).csrf(csrf -> csrf 
-                .ignoringRequestMatchers("/user/create_order","/api/webhook/**","/user/processContact", "/user/processUpdate", "/user/update-profile","/user/send-email-blast")
+            ).oauth2Client(Customizer.withDefaults()
+        ).csrf(csrf -> csrf
+                 .ignoringRequestMatchers("/user/create_order","/api/webhook/**","/user/processContact", "/user/processUpdate", "/user/update-profile","/user/send-email-blast")
 
         ).headers(headers -> headers
             .cacheControl(cache ->{})
@@ -116,13 +118,6 @@ public class SecurityConfig {
                 .expiredUrl("/public/login?session=expired")
                 .sessionRegistry(sessionRegistry())
                 
-        ).exceptionHandling(handling -> handling
-                        .accessDeniedHandler(((request, response, accessDeniedException) -> {
-                        request.getSession().setAttribute("session_msg", "Unauthorized Access! You don't have permission.");
-                        request.getSession().setAttribute("session_type", "error");
-                        response.sendRedirect("/user/dashboard_home");
-                        }))
-
         );
         return http.build();
     }

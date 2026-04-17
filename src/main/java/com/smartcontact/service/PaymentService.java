@@ -2,7 +2,6 @@ package com.smartcontact.service;
 
 import java.security.Principal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -10,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.razorpay.Order;
@@ -20,6 +22,8 @@ import com.smartcontact.entities.User;
 import com.smartcontact.enums.PaymentStatus;
 import com.smartcontact.repository.MyOrderRepository;
 import com.smartcontact.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class PaymentService {
@@ -104,12 +108,13 @@ public class PaymentService {
 
     // WebHook Processing................
 
+    @Transactional
     public void processWebhook(String payload, String signature) throws Exception {
 
         boolean isValid = Utils.verifyWebhookSignature(payload, signature, webHookSecret);
         if (!isValid) {
             System.out.println("Inavlid Signature");
-            throw new Exception("Inavlid Signature");
+            throw new Exception("Invalid Signature");
         }
         log.info("Signature Verified......");
 
@@ -140,8 +145,12 @@ public class PaymentService {
         double feeInRupees = paymentEntity.optInt("fee") / 100.0;
 
         String event = root.getString("event");
-        log.debug("Event received: {}", event);
+        log.debug("Webhook Event: {}", event);
 
+         if (paymentEntity.isNull("order_id")) {
+            log.error("Order ID missing in webhook");
+            return;
+        }
         String razorpayOrderId = paymentEntity.getString("order_id");
         String razorpayPaymentId = paymentEntity.getString("id");
 
@@ -150,7 +159,7 @@ public class PaymentService {
         if (order != null) {
             if ("payment.captured".equals(event)) {
                 order.setSignature(signature);
-                if (PaymentStatus.PAID.equals(order.getStatus()) && order.isEmailSent()) {
+                if (PaymentStatus.PAID.equals(order.getStatus())) {
                     log.info("Payment already processed for this Order ID. Skipping...");
                     return;
                 }
@@ -191,6 +200,7 @@ public class PaymentService {
                     log.info("Payment Confirmation Mail Sent to: {} ", userEmail);
                 } catch (Exception e) {
                     log.error("Error sending payment mail: " + e);
+                    throw new RuntimeException("Error sending payment email");
                 }
             } else if ("payment.failed".equals(event)) {
                 order.setStatus(PaymentStatus.FAILED);
@@ -207,8 +217,9 @@ public class PaymentService {
 
     }
 
-    public List<MyOrder> getAllOrders(String email){
-        List<MyOrder> orders = orderRepository.findByEmail(email);
-        return orders;
+    public Page<MyOrder> getAllOrders(int currentPage, String email) {
+        
+        Pageable pageable = PageRequest.of(currentPage, 4);
+        return orderRepository.getAllOrders(email, pageable);
     }
 }

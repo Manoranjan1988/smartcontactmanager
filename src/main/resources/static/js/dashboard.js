@@ -37,6 +37,8 @@ tinymce.init({
     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
 });
 
+
+
 // Sweetalert2
 document.addEventListener("DOMContentLoaded", () => {
     const msgInput = document.getElementById("msg-box");
@@ -60,13 +62,11 @@ document.addEventListener("DOMContentLoaded", () => {
             color: '#fff',
             confirmButtonColor: '#3b82f6',
             iconColor: type === "success" ? "#10b981" : "#ef4444",
-
-            timer: type === 'success' ? 1500 : 5000,
-
+            timer: type === 'success' ? 2000 : 5000,
             timerProgressBar: type === 'success' ? false : true,
+            showConfirmButton: type === 'success' ? false : true,
 
-            showConfirmButton: type === 'success' ? false : true
-        });
+        })
     }
 });
 
@@ -249,7 +249,7 @@ function toggleActions() {
 }
 //Didabled button in email blast
 function disableButton() {
-    const btn = document.getElementById('submitBtn');
+    const btn = document.getElementById('emailSubmitBtn');
     const btnText = document.getElementById('btnText');
     const spinner = document.getElementById('spinner');
 
@@ -264,66 +264,117 @@ function disableButton() {
     // 3. Form submit hone do
     return true;
 }
-// add-contact/ update contact button disable.
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. Direct Button ki ID se pakdo (No confusion with other forms)
-    const submitBtn = document.getElementById('submitBtn');
-    const contactForm = submitBtn ? submitBtn.closest('form') : null;
 
-    if (contactForm && submitBtn) {
-        contactForm.addEventListener('submit', function(e) {
-            // Check if form is actually valid (HTML5 validation check)
-            if (contactForm.checkValidity()) {
-                // Button ko freeze aur spin karao
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-70', 'cursor-not-allowed', 'pointer-events-none');
-                
-                // Icon aur Text badlo
-                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> PROCESSING...';
-                
-                console.log("Form locked! Uploading to Cloudinary...");
-            }
-        });
-    }
-});
 
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. Direct ID se select karo (No confusion)
+// addcontact / updatecontact disable button
+
+document.addEventListener('DOMContentLoaded', function () {
     const fileInput = document.getElementById('maxFile');
     const form = fileInput ? fileInput.closest('form') : null;
+    const btn = document.getElementById('contactSubmitBtn');
+    const spinner = document.getElementById('btnSpinner');
+    const btnText = document.getElementById('btnText');
 
     if (form && fileInput) {
-        console.log("File size checker initialized...");
+        form.addEventListener('submit', function (e) {
 
-        form.addEventListener('submit', function(e) {
+            // 1. Pehle Spinner ON karo
+            if (btn) {
+                btn.disabled = true;
+                if (spinner) spinner.classList.remove('hidden');
+                if (btnText) btnText.innerText = " Processing...";
+            }
+
+            // 2. Validation
             if (fileInput.files && fileInput.files.length > 0) {
-                // Correct access: files[0].size
-                const fileSizeInBytes = fileInput.files[0].size;
+                const fileSizeInBytes = fileInput.files[0].size; // [0] is mandatory
                 const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
-                
-                console.log("Actual File Size: " + fileSizeInMB.toFixed(2) + " MB");
 
                 if (fileSizeInMB > 5) {
+                    // STOP! Yahan button reset mat karo turant
+                    e.preventDefault();
+
                     Swal.fire({
-                        icon: 'error',
+                        icon: "error",
                         title:"Oops...",
-                        text: 'File size is too big! Please upload under 5MB.',
+                        text: "Max 5MB allowed. Please re-fill the form with a smaller image.",
                         width: '400px',
                         padding: '1.5rem',
                         background: '#1f2937',
                         color: '#fff',
-                        timer:2000,
-                        timerProgressBar: true,
                         confirmButtonColor: '#3b82f6',
+                        iconColor: "#ef4444",
+                        timer: 2000,
+                        timerProgressBar:true,
+                        showConfirmButton:false
+                    }).then((result) => {
+                        // when swal closed below will triggered
+                        if (btn) {
+                            btn.disabled = false;
+                            if (spinner) spinner.classList.add('hidden');
+                            if (btnText) btnText.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i> Save Contact';
+                        }
+                        fileInput.value = "";
                     });
-                    
-                    e.preventDefault(); 
-                    return fileInput.value = "";
+                    return;
                 }
             }
+
         });
-    } else {
-        console.error("Form or File Input not found! Check IDs.");
     }
 });
+
+//Profile Update
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const btn = document.getElementById("profileBtn");
+    const form = btn ? btn.closest("form") : null;
+    const content = document.getElementById("profileBtnText");
+
+    if (!btn || !form) return;
+
+    // 🔥 ALWAYS RESET ON PAGE LOAD
+    btn.disabled = false;
+    btn.classList.remove(
+        "opacity-70",
+        "cursor-not-allowed",
+        "pointer-events-none"
+    );
+
+    if (content) {
+        content.innerHTML =
+            '<i class="fa-solid fa-cloud-arrow-up mr-2"></i> Save Contact';
+    }
+
+    // 🔥 SUBMIT → DISABLE + SPINNER
+    form.addEventListener("submit", function (e) {
+
+        if (!form.checkValidity()) return;
+
+        if (btn.disabled) {
+            e.preventDefault();
+            return;
+        }
+
+        btn.disabled = true;
+
+        btn.classList.add(
+            "opacity-70",
+            "cursor-not-allowed",
+            "pointer-events-none"
+        );
+
+        if (content) {
+            content.innerHTML =
+                '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Processing...';
+        }
+    });
+
+});
+
+
+
+
+
 

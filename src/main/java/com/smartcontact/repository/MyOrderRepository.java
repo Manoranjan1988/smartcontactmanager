@@ -1,7 +1,8 @@
 package com.smartcontact.repository;
 
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,5 +17,5 @@ public interface MyOrderRepository extends JpaRepository<MyOrder, Long> {
     MyOrder findTopByUserAndStatusOrderByCreatedAtDesc(User user, PaymentStatus status);
 
     @Query("SELECT o FROM MyOrder o WHERE o.user.email = :email ORDER BY o.createdAt DESC")
-    List<MyOrder> findByEmail(@Param("email") String email);
+    Page<MyOrder> getAllOrders(@Param("email") String email,Pageable pageable);
 }

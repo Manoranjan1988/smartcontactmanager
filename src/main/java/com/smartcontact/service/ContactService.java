@@ -33,13 +33,14 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import com.smartcontact.dto.ContactFormDTO;
 import com.smartcontact.entities.Contact;
 import com.smartcontact.entities.User;
+import com.smartcontact.enums.ContactSource;
 import com.smartcontact.exception.DuplicateContactException;
 import com.smartcontact.exception.ExportException;
 import com.smartcontact.repository.ContactRepository;
 import com.smartcontact.repository.UserRepository;
-
 import jakarta.servlet.http.HttpServletResponse;
 
 @Service
@@ -60,18 +61,27 @@ public class ContactService {
 
     private final AtomicBoolean isBlastRunning = new AtomicBoolean(false);
 
-    public long getContactCount(Principal principal) {
-        User user = userRepository.getUserByUserName(principal.getName());
+    public long getContactCount(User user) {
         return contactRepository.countActiveContacts(user.getId(), true);
     }
 
     @Transactional
-    public Contact saveContact(Contact contact, MultipartFile file, Principal principal) {
+    public Contact saveContact(ContactFormDTO dto, MultipartFile file, Principal principal) {
 
         try {
 
             User user = userRepository.getUserByUserName(principal.getName());
-            Optional<Contact> oldContactOpt = contactRepository.findByPhoneAndUserId(contact.getPhone(), user.getId());
+            Optional<Contact> oldContactOpt = contactRepository.findByPhoneAndUserId(dto.getPhone(), user.getId());
+
+            Contact contact = new Contact();
+            contact.setFirstName(dto.getFirstName());
+            contact.setLastName(dto.getLastName());
+            contact.setEmail(dto.getEmail());
+            contact.setPhone(dto.getPhone());
+            contact.setWork(dto.getWork());
+            contact.setDescription(dto.getDescription());
+            contact.setFavorite(dto.isFavorite());
+
             if (oldContactOpt.isPresent()) {
                 Contact oldContact = oldContactOpt.get();
                 if (oldContact.isFlag()) {
@@ -80,11 +90,19 @@ public class ContactService {
                             + oldContact.getFirstName() + " " + oldContact.getLastName());
                 }
 
+                // restore
+
                 oldContact.setFirstName(contact.getFirstName());
                 oldContact.setLastName(contact.getLastName());
                 oldContact.setEmail(contact.getEmail());
-                oldContact.setWork(contact.getWork());
-                oldContact.setDescription(contact.getDescription());
+
+                if (contact.getWork() != null && !contact.getWork().isBlank()) {
+                    oldContact.setWork(contact.getWork());
+                }
+                if (contact.getDescription() != null && !contact.getDescription().isBlank()) {
+                    oldContact.setDescription(contact.getDescription());
+                }
+
                 oldContact.setFavorite(contact.isFavorite());
                 oldContact.setFlag(true);
 
@@ -92,11 +110,10 @@ public class ContactService {
                     String fixedId = user.getEmail().split("@")[0] + "_" + contact.getPhone();
                     String cloudUrl = imageService.uploadImage(file, "SCM_Contacts", fixedId);
                     oldContact.setImage(cloudUrl);
-                } else {
-                    oldContact.setImage("default.png");
                 }
                 return contactRepository.save(oldContact);
             }
+            // new contact
             contact.setUser(user);
             if (file != null && !file.isEmpty()) {
                 String fixedId = user.getEmail().split("@")[0] + "_" + contact.getPhone();
@@ -106,13 +123,13 @@ public class ContactService {
                 contact.setImage("default.png");
             }
             Contact saveContact = contactRepository.save(contact);
-            log.info("Actual Contact Saved ID: {} ",saveContact.getCid());
+            log.info("Actual Contact Saved ID: {} ", saveContact.getCid());
             return contact;
         } catch (DataIntegrityViolationException dv) {
-           log.info("DB Level Duplicate Blocked");
+            log.info("DB Level Duplicate Blocked");
             throw dv;
         } catch (DuplicateContactException dc) {
-            log.error("MSG: " ,dc.getMessage());
+            log.error("MSG: ", dc.getMessage());
             throw dc;
         } catch (Exception e) {
 
@@ -150,8 +167,8 @@ public class ContactService {
         }
     }
 
-    public long favoriteCount(Principal principal) {
-        User user = userRepository.getUserByUserName(principal.getName());
+    public long favoriteCount(User user) {
+
         return contactRepository.countByUserIdAndFlagAndFavorite(user.getId(), true, true);
     }
 
@@ -193,46 +210,63 @@ public class ContactService {
     }
 
     @Transactional
-    public synchronized Contact updateContact(Contact contact, MultipartFile file, Principal principal) {
+    public Contact updateContact(Long cid, ContactFormDTO dto, MultipartFile file, Principal principal) {
 
         try {
             User user = this.userRepository.getUserByUserName(principal.getName());
+            Contact oldContact = contactRepository.getContactById(cid);
 
-            Optional<Contact> conflictOpt = contactRepository.findByPhoneAndUserId(contact.getPhone(), user.getId());
-
-            if (conflictOpt.isPresent()) {
-                Contact confliContact = conflictOpt.get();
-                if (confliContact.getCid() != contact.getCid()) {
-                    String status = confliContact.isFlag() ? "Active" : "Deleted";
-                    throw new DuplicateContactException(
-                            "Number already exist in your " + status + " contacts as " + confliContact.getFirstName()
-                                    + " " + confliContact.getLastName() + ". Please use a different number.");
-                }
+            if (!oldContact.getUser().getId().equals(user.getId())) {
+                throw new RuntimeException("Unauthorized");
             }
 
-            Contact oldContact = this.contactRepository.getContactById(contact.getCid());
+            // Duplicate check
+            Optional<Contact> conflictOpt = contactRepository.findByPhoneAndUserId(dto.getPhone(), user.getId());
 
-            if (!file.isEmpty()) {
+            if (conflictOpt.isPresent()) {
+                Contact conflict = conflictOpt.get();
 
-                if (oldContact.getImage() != null && oldContact.getImage().contains("cloudinary.com")) {
+                if (!conflict.getCid().equals(cid)) {
+                    String status = conflict.isFlag() ? "Active" : "Deleted";
+
+                    throw new DuplicateContactException(
+                            "Number already exist in your " + status + " contacts as " + conflict.getFirstName() + " "
+                                    + conflict.getLastName() + ". Please use a different number.");
+                }
+            }
+            // update fields
+            oldContact.setFirstName(dto.getFirstName());
+            oldContact.setLastName(dto.getLastName());
+            oldContact.setEmail(dto.getEmail());
+            oldContact.setPhone(dto.getPhone());
+
+            if (dto.getWork() != null && !dto.getWork().isBlank()) {
+                oldContact.setWork(dto.getWork());
+            }
+
+            if (dto.getDescription() != null && !dto.getDescription().isBlank()) {
+                oldContact.setDescription(dto.getDescription());
+            }
+
+            // Image Handling
+
+            if (file != null && !file.isEmpty()) {
+
+                if (oldContact.getImage() != null &&
+                        oldContact.getImage().contains("cloudinary.com")) {
                     imageService.deleteImage(oldContact.getImage());
                     log.info("DEBUG: Old Cloudinary Contact Image Deleted.");
                 }
-                String fixedId = user.getEmail().split("@")[0] + "_" + contact.getPhone();
+                String fixedId = user.getEmail().split("@")[0] + "_" + dto.getPhone();
                 String cloudUrl = imageService.uploadImage(file, "SCM_Contacts", fixedId);
-                if (cloudUrl != null) {
-                    contact.setImage(cloudUrl);
-                }
-            } else {
-                contact.setImage(oldContact.getImage());
+
+                oldContact.setImage(cloudUrl);
+
             }
-            contact.setUser(user);
-            user.setTerms(true);
-            this.contactRepository.save(contact);
+            return contactRepository.save(oldContact);
         } catch (Exception e) {
             throw e;
         }
-        return contact;
     }
 
     @Transactional
@@ -257,7 +291,7 @@ public class ContactService {
             user.setTerms(true);
             userRepository.save(user);
         } catch (Exception e) {
-            log.error("The Error is: " ,e.getMessage());
+            log.error("The Error is: ", e.getMessage());
             throw new RuntimeException("Profile Update Failed!", e);
         }
     }
@@ -361,10 +395,16 @@ public class ContactService {
                 table.addCell(new com.itextpdf.layout.element.Cell()
                         .add(new Paragraph(String.valueOf(slno++))).setTextAlignment(TextAlignment.CENTER));
 
-                table.addCell(c.getFirstName() + " " + c.getLastName()).setTextAlignment(TextAlignment.CENTER);
-                table.addCell(c.getEmail()).setTextAlignment(TextAlignment.CENTER);
-                table.addCell(c.getPhone()).setTextAlignment(TextAlignment.CENTER);
-                table.addCell(c.getWork()).setTextAlignment(TextAlignment.CENTER);
+                String fullName = (c.getFirstName() != null ? c.getFirstName() : "") + " " +
+                        (c.getLastName() != null ? c.getLastName() : "");
+                table.addCell(fullName.trim().isEmpty() ? "N/A" : fullName).setTextAlignment(TextAlignment.CENTER);
+
+                table.addCell(c.getEmail() != null ? c.getEmail() : "").setTextAlignment(TextAlignment.CENTER);
+
+                table.addCell(c.getPhone() != null ? c.getPhone() : "").setTextAlignment(TextAlignment.CENTER);
+
+                table.addCell(c.getWork() != null ? c.getWork() : "").setTextAlignment(TextAlignment.CENTER);
+
             }
             document.add(table);
             document.close();
@@ -400,6 +440,12 @@ public class ContactService {
         } finally {
             isBlastRunning.set(false);
         }
+    }
+
+
+    @Transactional
+    public int deleteAllGoogleContacts(Long userId) {
+        return contactRepository.softDeleteAllGoogleContacts(userId, ContactSource.GOOGLE);
     }
 
 }

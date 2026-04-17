@@ -1,11 +1,16 @@
 package com.smartcontact.controller;
 
 import java.security.Principal;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,26 +50,47 @@ public class AdminController {
 
     @GetMapping("update-status/{id}")
     public String adminStausUpdate(
-            @PathVariable ("id") Long id, 
-            RedirectAttributes ra,Principal principal){
+            @PathVariable("id") Long id,
+            RedirectAttributes ra, Principal principal) {
 
-        CustomUserPrincipal userPrincipal = (CustomUserPrincipal) principal;
-        log.info("User: {}", userPrincipal.getUsername());
-        log.info("Authorities", userPrincipal.getAuthorities());
+        String username = "";
+        Collection<? extends GrantedAuthority> authorities = null;
+        if (principal instanceof UsernamePasswordAuthenticationToken) {
+            // CASE 1: Normal Form Login
+            UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) principal;
+            CustomUserPrincipal userPrincipal = (CustomUserPrincipal) auth.getPrincipal();
+
+            username = userPrincipal.getUsername();
+            authorities = userPrincipal.getAuthorities();
+
+        } else if (principal instanceof OAuth2AuthenticationToken) {
+            // CASE 2: Google / GitHub OAuth2 Login
+            OAuth2AuthenticationToken oauth = (OAuth2AuthenticationToken) principal;
+            OAuth2User oauth2User = oauth.getPrincipal();
+
+            // Google ke liye "name" ya "email" uthate hain
+            username = oauth2User.getAttribute("name");
+            if (username == null)
+                username = oauth2User.getAttribute("email");
+
+            authorities = oauth.getAuthorities();
+        }
+        log.info("Logged in User Name: {}", username);
+        log.info("User Authorities: {}", authorities);
         String loggedEmail = principal.getName();
 
         User user = userService.findByUserId(id);
 
-        if(loggedEmail.equals(user.getEmail()) || "ROLE_ADMIN".equals(user.getRole())){
+        if (loggedEmail.equals(user.getEmail()) || "ROLE_ADMIN".equals(user.getRole())) {
             ra.addFlashAttribute("msg", "Action Restricted: Admins cannot be modified!");
             ra.addFlashAttribute("type", "error");
             return "redirect:/admin/manage_users";
         }
 
-        if(user.getStatus().equals("active")){
+        if (user.getStatus().equals("active")) {
             user.setStatus("inactive");
             ra.addFlashAttribute("msg", "User: " + user.getName() + " is now INACTIVE!");
-        } else{
+        } else {
             user.setStatus("active");
             ra.addFlashAttribute("msg", "User: " + user.getName() + " is now ACTIVE!");
         }

@@ -1,10 +1,12 @@
 package com.smartcontact.controller;
 
-import java.net.InetAddress;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.smartcontact.entities.User;
 import com.smartcontact.exception.EmailSendException;
+import com.smartcontact.exception.MaxAttemptsException;
 import com.smartcontact.service.EmailService;
 import com.smartcontact.service.UserService;
 
@@ -28,6 +31,9 @@ import jakarta.validation.Valid;
 @RequestMapping("/public")
 public class SmartController {
     private static final Logger log = LoggerFactory.getLogger(SmartController.class);
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     @Autowired
     private UserService userService;
@@ -53,7 +59,14 @@ public class SmartController {
             HttpServletRequest request) {
 
         log.info("=== LOGIN PAGE HIT ===");
-        log.info("URL: " + request.getRequestURL() + "?" + request.getQueryString());
+        String email = (String) request.getSession().getAttribute("LOGIN_EMAIL");
+        log.info("Session EMAIL: {}", request.getSession().getAttribute("LOGIN_EMAIL"));
+
+        String query = request.getQueryString();
+        String fullUrl = request.getRequestURL().toString() +
+                (query != null ? "?" + query : "");
+
+        log.info("URL: {}", fullUrl);
 
         if ("success".equals(logout) && !"null".equals(error)) {
             model.addAttribute("msg", "You have been logged out successfully!");
@@ -71,20 +84,48 @@ public class SmartController {
             model.addAttribute("msgType", "success");
             return "public/login";
         }
+        if ("disabled".equals(error)) {
+            request.getSession().setAttribute("showResend", true);
+
+            User user = userService.getUserByEmail(email);
+
+            String message = "Account inactive. Verify your email.";
+            boolean showResend = true;
+
+            if (user != null && user.getResendBlockedUntil() != null &&
+                    user.getResendBlockedUntil().isAfter(LocalDateTime.now())) {
+
+                Duration duration = Duration.between(
+                        LocalDateTime.now(),
+                        user.getResendBlockedUntil());
+
+                long hours = duration.toHours();
+                long minutes = duration.toMinutesPart();
+
+                message = String.format(
+                        "Max attempts reached. Try again after %d hr %d min",
+                        hours, minutes);
+                showResend = false;        
+            }
+
+            model.addAttribute("msg", message);
+            model.addAttribute("type", "error");
+            model.addAttribute("showResend", showResend);
+            model.addAttribute("email", email);
+
+            return "public/login";
+        }
 
         if (error != null && !"null".equals(error)) {
 
             String message = switch (error) {
-                
+
                 case "bad" -> "Wrong credentials! Please try again.";
-                case "disabled" -> "Activate your account first.";
-                case "oauth_self" -> "This email is registered with Email/Password. Please login using that.";
-                case "oauth_google" -> "This email is registered with Google. Please login using Google.";
-                case "oauth_github" -> "This email is registered with GitHub. Please login using GitHub.";
                 case "oauth" -> "OAuth login failed. Please try again.";
+                case "invalid_email" -> "Email not verified from provider";
                 default -> "Invalid Username & Password.";
             };
-    
+
             model.addAttribute("msg", message);
             model.addAttribute("type", "alert-danger");
 
@@ -111,30 +152,26 @@ public class SmartController {
             }
 
             User dbUser = userService.getUserByEmail(user.getEmail());
-           
-                log.info("Email: {}",dbUser.getEmail());
-                log.info("Provider Name: {}",dbUser.getProvided());
-           
-            if (dbUser.getProvided().equals("SELF")) {
-                model.addAttribute("msg", "Login using email & password");
-                model.addAttribute("type", "error");
-                return "public/signup";
-            } else if (dbUser.getProvided().equals("GOOGLE")) {
-                model.addAttribute("msg", "Login using Google");
-                model.addAttribute("type", "error");
-                return "public/signup";
-            } else if (dbUser.getProvided().equals("GITHUB")) {
-                model.addAttribute("msg", "Login using GitHub");
-                model.addAttribute("type", "error");
-                return "public/signup";
+            if (dbUser != null) {
+                log.info("Email: {}", dbUser.getEmail());
+                log.info("Provider Name: {}", dbUser.getProvided());
+
+                if (dbUser.getProvided().equals("SELF")) {
+                    model.addAttribute("msg", "Login using email & password");
+                    model.addAttribute("type", "error");
+                    return "public/signup";
+                } else if (dbUser.getProvided().equals("GOOGLE")) {
+                    model.addAttribute("msg", "Login using Google");
+                    model.addAttribute("type", "error");
+                    return "public/signup";
+                } else if (dbUser.getProvided().equals("GITHUB")) {
+                    model.addAttribute("msg", "Login using GitHub");
+                    model.addAttribute("type", "error");
+                    return "public/signup";
+                }
             }
-            
 
-            String scheme = request.getScheme();
-            String ip = InetAddress.getLocalHost().getHostAddress();
-            int serverPort = request.getServerPort();
-
-            String url = scheme + "://" + ip + ":" + serverPort;
+            String url = baseUrl;
 
             User preparedUser = userService.prepareUser(user);
 
@@ -148,7 +185,7 @@ public class SmartController {
                     ra.addFlashAttribute("msg", "Register Successful, Activate your mail");
                     ra.addFlashAttribute("type", "success");
                 } else {
-                    ra.addFlashAttribute("msg", "TRegistration okay, but mail sending failed!");
+                    ra.addFlashAttribute("msg", "Registration okay, but mail sending failed!");
                     ra.addFlashAttribute("type", "error");
                 }
                 return "redirect:/public/signup";
@@ -161,6 +198,7 @@ public class SmartController {
         } catch (EmailSendException e) {
             throw e;
         } catch (Exception e) {
+            log.error("Internal Error", e);
             ra.addFlashAttribute("user", user);
             ra.addFlashAttribute("msg", "Something went wrong !!");
             ra.addFlashAttribute("type", "danger");
@@ -341,4 +379,32 @@ public class SmartController {
 
     }
 
+    @PostMapping("/resend-verification")
+    public String verificationEmail(RedirectAttributes ra, HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        String email = (String) session.getAttribute("LOGIN_EMAIL");
+
+        if (email == null) {
+            ra.addFlashAttribute("msg", "Session expired. Please login again.");
+            return "redirect:/public/login";
+        }
+
+        try {
+            int attemptsLeft = userService.reVerifyEmail(email);
+            ra.addFlashAttribute("showResend", true);
+            ra.addFlashAttribute("msg", "Verification email sent!");
+            ra.addFlashAttribute("type", "success");
+            ra.addFlashAttribute("attemptsLeft", attemptsLeft);
+
+        } catch (MaxAttemptsException e) {
+            ra.addFlashAttribute("msg", e.getMessage());
+            ra.addFlashAttribute("showResend", false);
+            ra.addFlashAttribute("type", "error");
+            ra.addFlashAttribute("attemptsLeft", 0);
+            return "redirect:/public/login";
+        }
+
+        return "redirect:/public/login";
+    }
 }

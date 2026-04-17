@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @SuppressWarnings("unused")
-public class CustomUserPrincipal implements UserDetails, OAuth2User,OidcUser{
+public class CustomUserPrincipal implements UserDetails, OAuth2User, OidcUser {
 
     private String email;
     private String password;
@@ -20,11 +20,12 @@ public class CustomUserPrincipal implements UserDetails, OAuth2User,OidcUser{
     private OidcIdToken idToken;
     private OidcUserInfo userInfo;
 
-   
-
     public CustomUserPrincipal(String email, String password, Collection<? extends GrantedAuthority> authorities,
-        Map<String, Object> attributes, OidcIdToken idToken, OidcUserInfo userInfo) {
-        this.email = email;
+            Map<String, Object> attributes, OidcIdToken idToken, OidcUserInfo userInfo) {
+        if(email == null || email.isBlank()){
+            throw new IllegalArgumentException("Email cannot be null or empty");
+        }
+        this.email = email.toLowerCase().trim();
         this.password = password;
         this.authorities = authorities;
         this.attributes = attributes;
@@ -82,23 +83,22 @@ public class CustomUserPrincipal implements UserDetails, OAuth2User,OidcUser{
         if (this == obj)
             return true;
 
-        if (obj == null || getClass() != obj.getClass())
+        if (!(obj instanceof CustomUserPrincipal))
             return false;
 
         CustomUserPrincipal other = (CustomUserPrincipal) obj;
 
-        return this.getUsername().equals(other.getUsername());
+        return this.getUsername().equalsIgnoreCase(other.getUsername());
     }
 
     @Override
     public int hashCode() {
-        return this.getUsername().hashCode();
+        return this.getUsername().toLowerCase().hashCode();
     }
-
 
     @Override
     public OidcIdToken getIdToken() {
-       return idToken;
+        return idToken;
     }
 
     @Override
@@ -108,7 +108,8 @@ public class CustomUserPrincipal implements UserDetails, OAuth2User,OidcUser{
 
     @Override
     public Map<String, Object> getClaims() {
-        return attributes;
+        return attributes != null ? attributes : Map.of();
+        
     }
 
 }

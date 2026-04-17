@@ -27,8 +27,13 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
             throws IOException, ServletException {
 
         log.info("=== FAILURE HANDLER START ===");
-        log.info("Exception type: {}", exception.getClass().getSimpleName());
+        log.error("Exception type:{} ", exception.getClass().getSimpleName());
         String errorType = "bad";
+
+        String email = request.getParameter("username");
+        request.getSession().setAttribute("LOGIN_EMAIL", email);
+
+              
 
         if (exception instanceof DisabledException) {
             errorType = "disabled";
@@ -37,25 +42,28 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         } else if (exception instanceof SessionAuthenticationException) {
             errorType = "concurrent";
         } else if (exception instanceof OAuth2AuthenticationException) {
-            OAuth2AuthenticationException oauthEx = (OAuth2AuthenticationException) exception;
-            String provider = null;
-            if(oauthEx.getError() != null){
-                provider = oauthEx.getError().getDescription();
-            }
-            log.info("Provider from exception: {}", provider);
-            
-            if ("SELF".equals(provider)) {
-                errorType = "oauth_self";
-            } else if ("GOOGLE".equals(provider)) {
-                errorType = "oauth_google";
-            } else if ("GITHUB".equals(provider)) {
-                errorType = "oauth_github";
+            OAuth2AuthenticationException ex = (OAuth2AuthenticationException) exception;
+            String code = ex.getError().getErrorCode();
+
+            log.error("OAuth Code: {}", ex.getError().getErrorCode());
+            log.error("OAuth Desc: {}", ex.getError().getDescription());
+
+            if ("disabled".equals(code)) {
+                errorType = "disabled";
+            } else if ("invalid_email".equals(code)) {
+                errorType = "invalid_email";
             } else {
                 errorType = "oauth";
             }
+        } else {
+            errorType = "error";
+            log.error("Unhandled auth exception: {}", exception.getClass().getName(), exception);
         }
 
-        String redirectUrl = request.getContextPath() + "/public/login?error=" + errorType;
+        String redirectUrl = request.getContextPath() + "/public/login";
+        if(errorType != null && !errorType.isEmpty()){
+            redirectUrl += "?error=" + errorType;
+        }
 
         log.info("Redirecting to: {}", redirectUrl);
         log.info("=== FAILURE HANDLER END ===");

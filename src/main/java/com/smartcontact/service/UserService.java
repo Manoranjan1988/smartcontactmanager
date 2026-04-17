@@ -1,6 +1,7 @@
 package com.smartcontact.service;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -9,21 +10,21 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.stereotype.Service;
 
 import com.smartcontact.entities.OtpEntity;
 import com.smartcontact.entities.User;
+import com.smartcontact.exception.MaxAttemptsException;
 import com.smartcontact.repository.OtpRepository;
 import com.smartcontact.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
+
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
@@ -32,6 +33,10 @@ public class UserService {
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private OtpRepository otpRepository;
+    @Autowired
+    private EmailService emailService;
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     public boolean checkExistsEmail(String email) {
         boolean emailStatus = userRepository.existsByEmail(email);
@@ -186,8 +191,8 @@ public class UserService {
         } else {
             // EXISTING USER SYNC LOGIC
             if (!providerName.equals(user.getProvided())) {
-                throw new OAuth2AuthenticationException(
-                   new OAuth2Error("provider mismatch",user.getProvided(),null));
+                log.warn("Provider mismatch: DB={}, Incoming={}",
+                        user.getProvided(), providerName);
             }
 
             // Photo sync
@@ -214,6 +219,60 @@ public class UserService {
         user.setTerms(true);
 
         return userRepository.saveAndFlush(user);
+    }
+
+    @Transactional(noRollbackFor = MaxAttemptsException.class)
+    public int reVerifyEmail(String email) {
+
+        User user = userRepository.findByEmailForUpdate(email);
+
+        if (user.getResendBlockedUntil() != null &&
+                user.getResendBlockedUntil().isAfter(LocalDateTime.now())) {
+            Duration duration = Duration.between(LocalDateTime.now(), user.getResendBlockedUntil());
+
+            long hours = duration.toHours();
+            long minutes = duration.toMinutesPart();
+
+            String msg = String.format(
+                    "Account is blocked. Try again after %d hr %d min",
+                    hours, minutes);
+
+            throw new MaxAttemptsException(msg);
+        }
+
+        log.info("Before: {}", user.getResentAttempts());
+
+        int newAttempts = user.getResentAttempts() + 1;
+        user.setResentAttempts(newAttempts);
+
+        log.info("After: {}", newAttempts);
+
+        if (newAttempts >= 3) {
+            LocalDateTime blocedUntil = LocalDateTime.now().plusHours(3);
+
+            user.setResendBlockedUntil(blocedUntil);
+            log.info("BlockedUntil set to: {}", user.getResendBlockedUntil());
+            user.setResentAttempts(0);
+            user.setTerms(true);
+            userRepository.saveAndFlush(user);
+
+            Duration duration = Duration.between(LocalDateTime.now(), blocedUntil);
+
+            long hours = duration.toHours();
+            long minutes = duration.toMinutesPart();
+
+            String msg = String.format("Max attempts reached. Try again after %d hr %d min", hours, minutes);
+            throw new MaxAttemptsException(msg);
+        }
+
+        String token = UUID.randomUUID().toString();
+        user.setVerificationToken(token);
+        user.setTerms(true);
+        userRepository.save(user);
+
+        emailService.sendVerificationEmail(user.getEmail(), token, baseUrl);
+
+        return 3 - newAttempts;
     }
 
 }
