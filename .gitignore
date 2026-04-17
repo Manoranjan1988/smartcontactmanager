@@ -43,7 +43,7 @@ Thumbs.db
 .env
 
 # Sensitive configs
-application.properties
-application.yml
+src/main/resources/application-dev.properties
+.env
 
 personal/
