@@ -28,29 +28,28 @@
     
     <!-- 1. NEW CONTACT BUTTON -->
     <a th:href="@{/user/add-contact}"
-        class="group relative flex items-center justify-center w-full sm:w-auto h-[52px] bg-white dark:bg-slate-800 text-slate-700 dark:text-white px-8 rounded-2xl font-bold transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)] overflow-hidden">
+        class="group relative flex items-center w-full sm:w-auto h-[52px] bg-white dark:bg-slate-800 text-slate-700 dark:text-white px-6 rounded-2xl font-bold transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] overflow-hidden">
         
-        <!-- Hover Background Effect -->
-        <span class="absolute inset-0 w-0 bg-gradient-to-r from-blue-50 to-white dark:from-blue-900/20 dark:to-slate-800 transition-all duration-500 ease-out group-hover:w-full"></span>
+        <span class="absolute inset-0 w-0 bg-gradient-to-r from-blue-50 to-white dark:from-blue-900/10 transition-all duration-500 ease-out group-hover:w-full"></span>
         
-        <span class="relative flex items-center group-hover:text-blue-600 transition-colors duration-300">
-            <i class="fa-solid fa-plus-circle mr-3 text-blue-500 text-xl group-hover:scale-125 transition-all duration-500"></i>
-            <span>New Contact</span>
+        <!-- Left Aligned Content -->
+        <span class="relative flex items-center w-full group-hover:text-blue-600 transition-colors duration-300">
+            <i class="fa-solid fa-plus-circle w-8 text-blue-500 text-xl group-hover:scale-110 transition-all duration-500"></i>
+            <span class="ml-1">New Contact</span>
         </span>
         
-        <!-- Bottom Glow Line -->
         <span class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
     </a>
 
     <!-- 2. IMPORT GOOGLE CONTACTS BUTTON -->
     <button id="importBtn" onclick="startGoogleImport()"
-        class="group relative flex items-center justify-center w-full sm:w-auto h-[52px] bg-white dark:bg-slate-800 text-slate-700 dark:text-white px-8 rounded-2xl font-bold transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-red-500 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] overflow-hidden">
+        class="group relative flex items-center w-full sm:w-auto h-[52px] bg-white dark:bg-slate-800 text-slate-700 dark:text-white px-6 rounded-2xl font-bold transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-red-500 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)] overflow-hidden">
 
-        <span class="absolute inset-0 w-0 bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-slate-800 transition-all duration-500 ease-out group-hover:w-full"></span>
+        <span class="absolute inset-0 w-0 bg-gradient-to-r from-red-50 to-white dark:from-red-900/10 transition-all duration-500 ease-out group-hover:w-full"></span>
 
-        <span class="relative flex items-center group-hover:text-red-600 transition-colors duration-300">
-            <i class="fa-brands fa-google mr-3 text-red-500 text-xl group-hover:scale-125 group-hover:rotate-[360deg] transition-all duration-500"></i>
-            <span id="importBtnText">Import Google Contacts</span>
+        <span class="relative flex items-center w-full group-hover:text-red-600 transition-colors duration-300">
+            <i class="fa-brands fa-google w-8 text-red-500 text-xl group-hover:scale-110 group-hover:rotate-[360deg] transition-all duration-500"></i>
+            <span id="importBtnText" class="ml-1">Import Google Contacts</span>
         </span>
 
         <span class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
@@ -58,23 +57,21 @@
 
     <!-- 3. CLEAR GOOGLE IMPORT BUTTON -->
     <form th:action="@{/user/delete-google-contacts}" method="POST" class="w-full sm:w-auto">
-        <button type="submit" title="Deletes all imported Google contacts"
-            class="group relative flex items-center justify-center w-full sm:w-auto h-[52px] bg-white dark:bg-slate-800 text-slate-700 dark:text-white px-8 rounded-2xl font-bold transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] overflow-hidden cursor-pointer">
+        <button type="submit"
+            class="group relative flex items-center w-full sm:w-auto h-[52px] bg-white dark:bg-slate-800 text-slate-700 dark:text-white px-6 rounded-2xl font-bold transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.15)] overflow-hidden cursor-pointer">
 
-            <!-- Background Gradient Effect -->
-            <span class="absolute inset-0 w-0 bg-gradient-to-r from-orange-50 to-white dark:from-orange-900/20 dark:to-slate-800 transition-all duration-500 ease-out group-hover:w-full"></span>
+            <span class="absolute inset-0 w-0 bg-gradient-to-r from-orange-50 to-white dark:from-orange-900/10 transition-all duration-500 ease-out group-hover:w-full"></span>
 
-            <span class="relative flex items-center group-hover:text-orange-600 transition-colors duration-300">
-                <i class="fa-solid fa-trash-can mr-3 text-orange-500 text-xl group-hover:scale-110 transition-all duration-500"></i>
-                <span class="tracking-wide">Clear Google Import</span>
+            <span class="relative flex items-center w-full group-hover:text-orange-600 transition-colors duration-300">
+                <i class="fa-solid fa-trash-can w-8 text-orange-500 text-lg group-hover:scale-110 transition-all duration-500"></i>
+                <span class="ml-1">Clear Google Import</span>
             </span>
 
-            <!-- Bottom Glow Line -->
             <span class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-orange-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
         </button>
     </form>
-
 </div>
+
 
             </div>
             <!-- Background Decorative Circle -->
