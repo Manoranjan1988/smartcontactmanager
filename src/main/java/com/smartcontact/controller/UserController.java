@@ -106,7 +106,7 @@ public class UserController {
             model.addAttribute("msg", allErrors);
             model.addAttribute("type", "error");
             model.addAttribute("isUpdate", false);
-            return "/user/add-contact";
+            return "user/add-contact";
         }
 
         if (!file.isEmpty()) {
