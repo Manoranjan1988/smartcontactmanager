@@ -104,6 +104,7 @@ public class SecurityConfig {
         
         .logout(logout -> logout
                 .logoutUrl("/user/do-logout")
+                .logoutRequestMatcher(request -> request.getRequestURI().equals("/user/do-logout"))
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .logoutSuccessHandler(logoutHandler)
