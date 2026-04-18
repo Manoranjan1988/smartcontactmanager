@@ -24,53 +24,58 @@
                 <p class="text-blue-100 text-lg opacity-90 max-w-xl">
                     Manage your professional network with ease. You have full control over your contacts and security.
                 </p>
-                <div class="mt-6 flex flex-wrap gap-4">
-                    <a th:href="@{/user/add-contact}"
-                        class="bg-white text-blue-700 px-6 py-2.5 rounded-xl font-bold hover:bg-blue-50 transition transform hover:scale-105 shadow-md">
-                        <i class="fa-solid fa-plus-circle mr-2"></i> New Contact
-                    </a>
+                <div class="mt-6 flex flex-col sm:flex-row flex-wrap gap-4 items-center">
+    
+    <!-- 1. NEW CONTACT BUTTON -->
+    <a th:href="@{/user/add-contact}"
+        class="group relative flex items-center justify-center w-full sm:w-auto h-[52px] bg-white dark:bg-slate-800 text-slate-700 dark:text-white px-8 rounded-2xl font-bold transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)] overflow-hidden">
+        
+        <!-- Hover Background Effect -->
+        <span class="absolute inset-0 w-0 bg-gradient-to-r from-blue-50 to-white dark:from-blue-900/20 dark:to-slate-800 transition-all duration-500 ease-out group-hover:w-full"></span>
+        
+        <span class="relative flex items-center group-hover:text-blue-600 transition-colors duration-300">
+            <i class="fa-solid fa-plus-circle mr-3 text-blue-500 text-xl group-hover:scale-125 transition-all duration-500"></i>
+            <span>New Contact</span>
+        </span>
+        
+        <!-- Bottom Glow Line -->
+        <span class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
+    </a>
 
-                    <button id="importBtn" onclick="startGoogleImport()"
-                        class="group relative flex items-center justify-center bg-white dark:bg-slate-800 text-slate-700 dark:text-white px-8 py-3 rounded-2xl font-bold transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-red-500 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] overflow-hidden">
+    <!-- 2. IMPORT GOOGLE CONTACTS BUTTON -->
+    <button id="importBtn" onclick="startGoogleImport()"
+        class="group relative flex items-center justify-center w-full sm:w-auto h-[52px] bg-white dark:bg-slate-800 text-slate-700 dark:text-white px-8 rounded-2xl font-bold transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-red-500 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] overflow-hidden">
 
-                        <span
-                            class="absolute inset-0 w-0 bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-slate-800 transition-all duration-500 ease-out group-hover:w-full"></span>
+        <span class="absolute inset-0 w-0 bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-slate-800 transition-all duration-500 ease-out group-hover:w-full"></span>
 
-                        <span
-                            class="relative flex items-center group-hover:text-red-600 transition-colors duration-300">
-                            <!-- Icon ko hamesha safe rakho -->
-                            <i
-                                class="fa-brands fa-google mr-3 text-red-500 text-xl group-hover:scale-125 group-hover:rotate-[360deg] transition-all duration-500"></i>
+        <span class="relative flex items-center group-hover:text-red-600 transition-colors duration-300">
+            <i class="fa-brands fa-google mr-3 text-red-500 text-xl group-hover:scale-125 group-hover:rotate-[360deg] transition-all duration-500"></i>
+            <span id="importBtnText">Import Google Contacts</span>
+        </span>
 
-                            <!-- Sirf is text ko ID do -->
-                            <span id="importBtnText">Import Google Contacts</span>
-                        </span>
+        <span class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
+    </button>
 
-                        <!-- Bottom Glow Line -->
-                        <span
-                            class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
-                    </button>
+    <!-- 3. CLEAR GOOGLE IMPORT BUTTON -->
+    <form th:action="@{/user/delete-google-contacts}" method="POST" class="w-full sm:w-auto">
+        <button type="submit" title="Deletes all imported Google contacts"
+            class="group relative flex items-center justify-center w-full sm:w-auto h-[52px] bg-white dark:bg-slate-800 text-slate-700 dark:text-white px-8 rounded-2xl font-bold transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] overflow-hidden cursor-pointer">
 
-                    <form th:action="@{/user/delete-google-contacts}" method="POST" class="inline-block">
-                        <button type="submit" title="Deletes all imported Google contacts"
-                            class="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-bold text-white transition-all duration-300 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl group hover:shadow-lg hover:shadow-red-500/30 active:scale-95 border-none cursor-pointer leading-none h-[50px]">
+            <!-- Background Gradient Effect -->
+            <span class="absolute inset-0 w-0 bg-gradient-to-r from-orange-50 to-white dark:from-orange-900/20 dark:to-slate-800 transition-all duration-500 ease-out group-hover:w-full"></span>
 
-                            <!-- Subtle Shine effect -->
-                            <span
-                                class="absolute inset-0 w-full h-full transition duration-300 opacity-0 group-hover:opacity-20 bg-white"></span>
+            <span class="relative flex items-center group-hover:text-orange-600 transition-colors duration-300">
+                <i class="fa-solid fa-trash-can mr-3 text-orange-500 text-xl group-hover:scale-110 transition-all duration-500"></i>
+                <span class="tracking-wide">Clear Google Import</span>
+            </span>
 
-                            <!-- Icons & Text -->
-                            <span class="relative flex items-center space-x-2">
-                                <i class="fa-brands fa-google text-[10px] opacity-80"></i>
-                                <i class="fa-solid fa-trash-can text-sm"></i>
-                                <span class="tracking-wide ml-1">Clear Google Import</span>
-                            </span>
-                        </button>
-                    </form>
+            <!-- Bottom Glow Line -->
+            <span class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-orange-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
+        </button>
+    </form>
 
+</div>
 
-
-                </div>
             </div>
             <!-- Background Decorative Circle -->
             <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
