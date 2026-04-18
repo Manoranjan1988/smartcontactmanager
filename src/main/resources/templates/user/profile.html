@@ -9,43 +9,50 @@
 
 <body>
     <div layout:fragment="content" class="animate__animated animate__fadeIn">
-        <div th:if="${msg}">
-            <input type="hidden" id="msg-box" th:value="${msg}" />
-            <input type="hidden" id="type-box" th:value="${type}" />
-        </div>
+    <!-- Message Handling -->
+    <div th:if="${msg}">
+        <input type="hidden" id="msg-box" th:value="${msg}" />
+        <input type="hidden" id="type-box" th:value="${type}" />
+    </div>
 
-        <section class="animate__animated animate__fadeIn">
-        <div class="max-w-4xl mx-auto p-4 md:p-6">
+    <section class="min-h-screen py-4 md:py-10 bg-gray-50 dark:bg-slate-900">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6">
             
-            <div class="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
+            <!-- Main Profile Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
                 
-                <div class="h-48 bg-gradient-to-r from-blue-600 to-indigo-700 relative">
+                <!-- Banner Background -->
+                <div class="h-40 md:h-52 bg-gradient-to-r from-blue-600 to-indigo-700 relative">
+                    <!-- Profile Image Wrapper -->
                     <div class="absolute -bottom-16 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0">
                         <img th:src="${user.image != null && user.image.startsWith('http') ? user.image : '/image/default_profile.png'}" 
-                             class="w-36 h-36 rounded-[2.5rem] object-cover border-8 border-white dark:border-gray-800 shadow-xl bg-white"
+                             class="w-32 h-32 md:w-40 md:h-40 rounded-[2rem] md:rounded-[2.5rem] object-cover border-4 md:border-8 border-white dark:border-gray-800 shadow-2xl bg-white"
                              alt="User Profile">
                     </div>
                 </div>
 
-                <div class="pt-20 pb-10 px-8 md:px-12">
+                <!-- Profile Info Area -->
+                <div class="pt-20 pb-8 px-6 md:px-12">
                     
-                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                        <div>
-                            <h1 class="text-3xl font-black text-gray-800 dark:text-white" th:text="${user.name}">User Name</h1>
-                            <p class="text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest text-xs mt-1">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
+                        
+                        <div class="text-center md:text-left">
+                            <h1 class="text-2xl md:text-4xl font-black text-gray-800 dark:text-white mb-2" th:text="${user.name}">User Name</h1>
+                            <div class="flex items-center justify-center md:justify-start gap-2 text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest text-[10px] md:text-xs">
                                 <span th:text="${user.role == 'ROLE_USER' ? 'Standard User' : 'Administrator'}">Role</span> 
-                                <span class="mx-2">•</span> 
+                                <span class="opacity-30">•</span> 
                                 <span th:classappend="${user.status == 'active' ? 'text-green-500' : 'text-red-500'}" th:text="${user.status}">Active</span>
-                            </p>
+                            </div>
                         </div>
                         
-                        <div class="flex flex-wrap gap-3">
-                            <a th:href="@{/user/dashboard_home}" class="flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-2xl font-bold hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                                <i class="fa-solid fa-arrow-left"></i>
-                                Back to Home
+                        <!-- Actions Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                            <a th:href="@{/user/dashboard_home}" class="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-3.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-2xl font-bold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all active:scale-95">
+                                <i class="fa-solid fa-house-chimney text-sm"></i>
+                                Home
                             </a>
-                            <a th:href="@{/user/profile_settings}" class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition">
-                                <i class="fa-solid fa-user-pen"></i>
+                            <a th:href="@{/user/profile_settings}" class="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-3.5 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all active:scale-95">
+                                <i class="fa-solid fa-user-pen text-sm"></i>
                                 Edit Profile
                             </a>
                         </div>
@@ -53,25 +60,30 @@
 
                     <hr class="my-8 border-gray-100 dark:border-gray-700">
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Info Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
     
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
-                            <div class="relative flex items-center min-h-[80px] px-4 bg-gray-50 dark:bg-gray-900/40 rounded-2xl border-2 border-transparent">
-                                <i class="fa-solid fa-envelope text-gray-400 mr-4"></i>
-                                <span class="text-gray-500 dark:text-gray-400 font-medium truncate" th:text="${user.email}">manoranjan...</span>
+                        <!-- Email Card -->
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Email Address</label>
+                            <div class="flex items-center p-4 md:p-5 bg-gray-50 dark:bg-gray-900/40 rounded-2xl border-2 border-transparent hover:border-blue-100 dark:hover:border-gray-700 transition-colors group">
+                                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-600 shrink-0 mr-4 group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-envelope"></i>
+                                </div>
+                                <span class="text-gray-700 dark:text-gray-300 font-bold text-sm truncate" th:text="${user.email}">user@example.com</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Security Status</label>
-                            <div class="min-h-[80px] p-4 bg-gray-50 dark:bg-gray-900/40 rounded-2xl flex items-center gap-4">
-                                <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center text-green-600 shrink-0">
-                                    <i class="fa-solid fa-shield-check"></i>
+                        <!-- Last Login Card -->
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Security Details</label>
+                            <div class="flex items-center p-4 md:p-5 bg-gray-50 dark:bg-gray-900/40 rounded-2xl border-2 border-transparent hover:border-green-100 dark:hover:border-gray-700 transition-colors group">
+                                <div class="w-10 h-10 bg-green-100 dark:bg-green-900/20 rounded-xl flex items-center justify-center text-green-600 shrink-0 mr-4 group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-shield-halved"></i>
                                 </div>
-                                <div>
-                                    <p class="text-[10px] text-gray-500 uppercase font-bold">Last Login</p>
-                                    <p class="text-sm font-bold dark:text-white" th:text="${#temporals.format(user.lastLogin, 'dd MMM yyyy, hh:mm a')}">16 Mar 2026...</p>
+                                <div class="truncate">
+                                    <p class="text-[9px] text-gray-400 uppercase font-black">Last Activity</p>
+                                    <p class="text-xs md:text-sm font-bold text-gray-700 dark:text-white" th:text="${#temporals.format(user.lastLogin, 'dd MMM yyyy, hh:mm a')}">16 Mar 2026</p>
                                 </div>
                             </div>
                         </div>
@@ -81,11 +93,8 @@
             </div>
         </div>
     </section>
+</div>
 
-    </div>
-
-
-    </div>
 </body>
 
 </html>
