@@ -2,6 +2,7 @@ package com.smartcontact.controller;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -99,13 +101,37 @@ public class UserController {
             HttpSession session, @RequestParam("contactimage") MultipartFile file) {
 
         if (br.hasErrors()) {
-            String allErrors = br.getFieldErrors().stream()
-                    .map(e -> e.getDefaultMessage())
-                    .collect(Collectors.joining("<br>"));
 
-            model.addAttribute("msg", allErrors);
+            List<FieldError> phoneErrors = br.getFieldErrors("phone");
+
+            if (!phoneErrors.isEmpty()) {
+
+                // Priority: NotBlank first
+                Optional<FieldError> notBlankError = phoneErrors.stream()
+                        .filter(e -> e.getCode().equals("NotBlank"))
+                        .findFirst();
+
+                String msg;
+
+                if (notBlankError.isPresent()) {
+                    msg = notBlankError.get().getDefaultMessage();
+                } else {
+                    msg = phoneErrors.get(0).getDefaultMessage();
+                }
+
+                model.addAttribute("msg", msg);
+            } else {
+                // Other fields fallback
+                String allErrors = br.getFieldErrors().stream()
+                        .map(FieldError::getDefaultMessage)
+                        .collect(Collectors.joining("<br>"));
+
+                model.addAttribute("msg", allErrors);
+            }
+
             model.addAttribute("type", "error");
             model.addAttribute("isUpdate", false);
+
             return "user/add-contact";
         }
 
@@ -253,16 +279,39 @@ public class UserController {
         User user = userService.getUserByEmail(principal.getName());
         Contact contactId = contactService.getContactById(cid);
         if (br.hasErrors()) {
-            String allErrors = br.getFieldErrors().stream()
-                    .map(e -> e.getDefaultMessage())
-                    .collect(Collectors.joining("<br>"));
 
-            model.addAttribute("msg", allErrors);
+            List<FieldError> phoneErrors = br.getFieldErrors("phone");
+
+            String msg;
+
+            if (!phoneErrors.isEmpty()) {
+
+                // Priority: NotBlank first
+                Optional<FieldError> notBlankError = phoneErrors.stream()
+                        .filter(e -> "NotBlank".equals(e.getCode()))
+                        .findFirst();
+
+                if (notBlankError.isPresent()) {
+                    msg = notBlankError.get().getDefaultMessage();
+                } else {
+                    msg = phoneErrors.get(0).getDefaultMessage();
+                }
+
+            } else {
+
+                // Other fields fallback
+                msg = br.getFieldErrors().stream()
+                        .map(FieldError::getDefaultMessage)
+                        .collect(Collectors.joining("<br>"));
+            }
+
+            model.addAttribute("msg", msg);
             model.addAttribute("type", "error");
             model.addAttribute("isUpdate", true);
             model.addAttribute("cid", cid);
             model.addAttribute("contactFormDTO", contactFormDTO);
-            return "/user/add-contact";
+
+            return "user/add-contact"; // remove leading "/"
         }
 
         if (!file.isEmpty()) {

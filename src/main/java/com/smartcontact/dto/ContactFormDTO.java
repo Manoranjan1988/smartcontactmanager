@@ -29,7 +29,7 @@ public class ContactFormDTO {
     private String email;
 
     @Pattern(regexp = "^[6-9]\\d{9}$",message = "Please enter a valid 10-digit mobile number")
-    @NotBlank(message = "phone is reuired")
+    @NotBlank(message = "Phone is reuired")
     private String phone;
 
     private String work;
