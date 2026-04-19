@@ -4,6 +4,7 @@ body {
     /* Navbar ki height ke hisab se padding taaki content na dabe */
     padding-top: 80px !important; 
     background-color: #fdfdfd; /* Thoda off-white professional look */
+    
 }
 
 
@@ -357,4 +358,14 @@ footer.footer a:hover {
     padding: 8px 16px;
     border-radius: 6px;
     opacity: 0.8;
+}
+
+@keyframes floatZoom {
+    0% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-12px) scale(1.03); }
+    100% { transform: translateY(0px) scale(1); }
+}
+
+.super-animate {
+    animation: floatZoom 5s ease-in-out infinite;
 }

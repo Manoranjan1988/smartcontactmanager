@@ -4,47 +4,153 @@
       layout:decorate="~{base}">
 
 <head>
-    <title th:text="${title}">Home - SCM</title>
+    <title th:text="${title}">Smart Contact Manager | Manage Contacts Online Free</title>
+
+    <meta name="description" content="Smart Contact Manager helps you manage contacts, import from Google, and access anywhere securely.">
+
+    <meta name="keywords" content="contact manager, manage contacts online, smart contact manager, google contacts import">
+
+    <meta name="author" content="Manoranjan Sahu">
+
+    <link rel="canonical" href="https://scmonline.co.in/">
 </head>
 
 <body>
     <div layout:fragment="content">
-        
-    <section class="banner d-flex align-items-center justify-content-center px-3" style="min-height: 85vh;">
+
+    <!-- HERO SECTION -->
+    <section class="banner d-flex align-items-center px-3" style="min-height: 90vh;">
         <div class="container">
             <div class="row align-items-center gy-5">
-                
-                <!-- Left Side: Text Content -->
-                <div class="col-lg-7 text-center text-lg-start">
-                    <h1 class="fw-bold display-3 mb-3 animate__animated animate__fadeInLeft">
-                        Smart Contact Manager
+
+                <!-- LEFT CONTENT -->
+                <div class="col-lg-7 text-center text-lg-start"  
+                data-aos="fade-up"
+                data-aos-delay="200">
+
+                    <h1 class="fw-bold mb-3" style="font-size: clamp(28px, 5vw, 48px);">
+                        Smart Contact Manager – Manage Contacts Online Easily
                     </h1>
-                    <p class="lead mb-4 text-secondary">
-                        Start collecting your contacts in a very smart way. 
-                        We provide a very efficient and easy way to handle all your contacts.
+
+                    <h2 class="text-secondary mb-3">
+                        Organize, Import & Access Your Contacts Anywhere
+                    </h2>
+
+                    <p class="lead mb-4 text-muted">
+                        Smart Contact Manager is a powerful contact manager online tool that helps you manage contacts, 
+                        import contacts from Google, and access them securely anytime, anywhere. 
+                        Simplify your workflow with a fast, secure, and easy-to-use platform.
                     </p>
-                    <div class="d-flex justify-content-center justify-content-lg-start">
-                        <a th:href="@{/public/signup}" class="btn btn-premium btn-lg px-5 py-3 shadow-lg rounded-pill fw-bold">
-                            Get Started <i class="fa-solid fa-arrow-right ms-2"></i>
+
+                    <!-- CTA BUTTONS -->
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
+                        <a th:href="@{/public/signup}" 
+                           class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold shadow">
+                            🚀 Get Started
                         </a>
+
+                        <a th:href="@{/public/login}" 
+                           class="btn btn-outline-dark btn-lg px-4 py-3 rounded-pill fw-semibold">
+                            Login →
+                        </a>
+                    </div>
+
+                    <!-- TRUST SIGNAL -->
+                    <div class="mt-4 text-muted small text-center text-lg-start">
+                        ✔ Secure & Private &nbsp;&nbsp;
+                        ✔ Google Contact Import &nbsp;&nbsp;
+                        ✔ Free to Use
+                    </div>
+
+                </div>
+
+                <!-- RIGHT IMAGE -->
+                <div class="col-lg-5 text-center"
+                    data-aos="fade-left"
+                    data-aos-delay="400">
+                    <img th:src="@{/image/homeimage.jpg}" 
+                    alt="Smart Contact Manager dashboard managing contacts online"
+                    class="img-fluid super-animate"
+                    style="max-height: 350px; width: 100%; object-fit: cover; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15));">
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- FEATURES SECTION -->
+    <section class="py-5 bg-light">
+        <div class="container text-center">
+
+            <h2 class="fw-bold mb-4" data-aos="fade-up">Why Choose Smart Contact Manager?</h2>
+            <p class="text-muted mb-5">
+                Everything you need to manage your contacts efficiently in one place.
+            </p>
+
+            <div class="row g-4">
+
+                <div class="col-md-4" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="p-4 shadow-sm rounded bg-white h-100">
+                        <h5 class="fw-bold">🔄 Google Contact Import</h5>
+                        <p class="text-muted">
+                            Import all your contacts directly from Google in seconds.
+                        </p>
                     </div>
                 </div>
 
-                <!-- Right Side: Your Transparent Image -->
-                <div class="col-lg-5 text-center animate__animated animate__fadeInRight">
-                    <img th:src="@{/image/homeimage.jpg}" alt="SCM Illustration" 
-                         class="img-fluid hero-img" 
-                         style="max-height: 450px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));">
+                <div class="col-md-4" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="p-4 shadow-sm rounded bg-white h-100">
+                        <h5 class="fw-bold">🔒 Secure Cloud Storage</h5>
+                        <p class="text-muted">
+                            Your data is सुरक्षित, encrypted, and always accessible.
+                        </p>
+                    </div>
                 </div>
-                
+
+                <div class="col-md-4" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="p-4 shadow-sm rounded bg-white h-100">
+                        <h5 class="fw-bold">⚡ Easy Management</h5>
+                        <p class="text-muted">
+                            Organize, search, and manage contacts effortlessly.
+                        </p>
+                    </div>
+                </div>
+
             </div>
         </div>
-        <div th:if="${msgTitle}">
-            <input type="hidden" id="msg-box" th:value="${msgDash}" />
-            <input type="hidden" id="type-box" th:value="${msgType}" />
-            <input type="hidden" id="title-box" th:value="${msgTitle}" />
+    </section>
+
+
+    <!-- CALL TO ACTION SECTION -->
+    <section class="py-5 text-center">
+        <div class="container">
+
+            <div data-aos="fade-up">
+                <h2 class="fw-bold mb-3">Start Managing Your Contacts Smartly</h2>
+                <p class="text-muted mb-4">
+                    Join now and experience the easiest way to manage your contacts online.
+                </p>
+            </div>
+
+            <a th:href="@{/public/signup}" 
+                class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow"
+                data-aos="zoom-in"
+                data-aos-delay="300">
+                Create Free Account
+            </a>
+
         </div>
     </section>
+
+
+    <!-- HIDDEN MESSAGE BOX (unchanged) -->
+    <div th:if="${msgTitle}">
+        <input type="hidden" id="msg-box" th:value="${msgDash}" />
+        <input type="hidden" id="type-box" th:value="${msgType}" />
+        <input type="hidden" id="title-box" th:value="${msgTitle}" />
+    </div>
+
 </div>
 
 </body>

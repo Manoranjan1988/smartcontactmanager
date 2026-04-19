@@ -1,5 +1,15 @@
 console.log("JS started")
 
+AOS.init({
+        duration: 1000,
+        once: true
+    });
+
+window.history.scrollRestoration = "manual";
+  window.onload = function () {
+    window.scrollTo(0, 0);
+  };
+
 $(document).ready(function () {
     console.log("Jquery Started..........");
     setTimeout(function () {
