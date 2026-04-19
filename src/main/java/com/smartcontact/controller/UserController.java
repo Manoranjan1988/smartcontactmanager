@@ -591,7 +591,7 @@ public class UserController {
         Long nofcontacts = contactService.noOfAllContacts(user.getEmail());
         model.addAttribute("totalContacts", nofcontacts);
         model.addAttribute("title", "Send Bulk Email | SCM");
-        return "/user/email_blast";
+        return "user/email_blast";
     }
 
     @PostMapping("/send-email-blast")
