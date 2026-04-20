@@ -72,7 +72,7 @@ public class SecurityConfig {
         http.authenticationProvider(authenticationProvider());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/public/**", "/css/**", "/image/**", "/images/**", "/js/**", "/favicon.ico","/error/**","/.well-known/**","/api/webhook/**")
+                .requestMatchers("/", "/public/**", "/css/**", "/image/**", "/images/**", "/js/**", "/favicon.ico","/error/**","/.well-known/**","/api/webhook/**","/robots.txt","/sitemap.xml")
                 .permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/user/**").hasAnyRole("USER","ADMIN")

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
@@ -12,6 +13,9 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.stereotype.Component;
 
+import com.smartcontact.entities.User;
+import com.smartcontact.service.UserService;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,6 +23,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     private static final Logger log = LoggerFactory.getLogger(CustomAuthenticationFailureHandler.class);
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
@@ -30,10 +37,14 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         log.error("Exception type:{} ", exception.getClass().getSimpleName());
         String errorType = "bad";
 
-        String email = request.getParameter("username");
-        request.getSession().setAttribute("LOGIN_EMAIL", email);
+        String email = (String) request.getSession().getAttribute("LOGIN_EMAIL");
 
-              
+        if (email == null) {
+            email = request.getParameter("username");
+            request.getSession().setAttribute("LOGIN_EMAIL", email);
+        }
+
+        log.info("Failure Handler Email: {}", email);
 
         if (exception instanceof DisabledException) {
             errorType = "disabled";
@@ -47,9 +58,13 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
             log.error("OAuth Code: {}", ex.getError().getErrorCode());
             log.error("OAuth Desc: {}", ex.getError().getDescription());
-
-            if ("disabled".equals(code)) {
-                errorType = "disabled";
+            if ("disabled".equals(code) && email != null) {
+                User dbuser = userService.getUserByEmail(email);
+                if (dbuser != null && !"SELF".equals(dbuser.getProvided().toString())) {
+                    errorType = "inactive_user";
+                } else {
+                    errorType = "disabled";
+                }
             } else if ("invalid_email".equals(code)) {
                 errorType = "invalid_email";
             } else {
@@ -61,7 +76,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         }
 
         String redirectUrl = request.getContextPath() + "/public/login";
-        if(errorType != null && !errorType.isEmpty()){
+        if (errorType != null && !errorType.isEmpty()) {
             redirectUrl += "?error=" + errorType;
         }
 

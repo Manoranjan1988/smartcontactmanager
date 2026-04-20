@@ -123,6 +123,7 @@ public class SmartController {
                 case "bad" -> "Wrong credentials! Please try again.";
                 case "oauth" -> "OAuth login failed. Please try again.";
                 case "invalid_email" -> "Email not verified from provider";
+                case "inactive_user" -> "User inactive by Admin, Contact for support";
                 default -> "Invalid Username & Password.";
             };
 

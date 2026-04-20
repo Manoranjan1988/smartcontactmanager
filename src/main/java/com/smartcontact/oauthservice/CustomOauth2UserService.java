@@ -19,6 +19,8 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.smartcontact.config.CustomUserPrincipal;
 import com.smartcontact.entities.User;
@@ -73,6 +75,11 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 "GITHUB");
 
         if (!"active".equalsIgnoreCase(user.getStatus()) || user.getVerificationToken() != null) {
+
+            ServletRequestAttributes attr 
+                = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+                attr.getRequest().getSession().setAttribute("LOGIN_EMAIL", email);
+                log.info("Google user email saved in session: {}", email);
             throw new OAuth2AuthenticationException(
                     new OAuth2Error("disabled", "Account is not active", null));
         }
