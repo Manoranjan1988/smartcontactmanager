@@ -61,7 +61,7 @@ public class GoogleContactController {
         String token = client.getAccessToken().getTokenValue();
         log.info("TOKEN: {}", token);
 
-        return "redirect:/user/dashboard?import=success"; 
+        return "redirect:/user/dashboard_home?import=success"; 
     }
 
     @GetMapping("/test-api")

@@ -4,6 +4,9 @@ function startGoogleImport() {
     const btn = document.getElementById("importBtn");
     const label = document.getElementById("importBtnText");
 
+    // 🔥 ADD THIS
+    sessionStorage.setItem("googleRedirect", "true");
+
     if (btn) {
         btn.disabled = true;
         if (label) label.innerText = "Redirecting...";
@@ -17,15 +20,26 @@ function startGoogleImport() {
 // 🔥 Page Load → Resume Import Flow
 window.onload = function () {
 
-    const params = new URLSearchParams(window.location.search);
-    const importStatus = params.get("import");
+    console.log("🔥 PAGE LOAD");
 
-    if (importStatus !== "success") {
-        
+    const urlParams = new URLSearchParams(window.location.search);
+    const importStatus = urlParams.get("import");
+    const error = urlParams.get("error");
+
+    console.log("👉 URL:", window.location.href);
+    console.log("👉 importStatus:", importStatus);
+    console.log("👉 error:", error);
+    console.log("👉 sessionStorage(importStarted):", sessionStorage.getItem("importStarted"));
+
+    const btn = document.getElementById("importBtn");
+    const label = document.getElementById("importBtnText");
+
+    // 🔴 CANCEL CASE
+    if (error === "access_denied") {
+
+        console.log("❌ CANCEL DETECTED");
+
         sessionStorage.removeItem("importStarted");
-
-        const btn = document.getElementById("importBtn");
-        const label = document.getElementById("importBtnText");
 
         if (btn) {
             btn.disabled = false;
@@ -33,10 +47,14 @@ window.onload = function () {
             btn.classList.remove("opacity-50", "cursor-not-allowed");
         }
 
-        return; // 🔥 STOP here
+        return;
     }
-    
-        //SUCCESS -> START IMPORT
+
+    // 🟢 SUCCESS CASE
+    if (importStatus === "success") {
+
+        console.log("✅ SUCCESS DETECTED → START IMPORT");
+
         sessionStorage.setItem("importStarted", "true");
 
         document.getElementById("importOverlay").classList.remove("hidden");
@@ -45,9 +63,38 @@ window.onload = function () {
 
         startProgressPolling();
 
-        //  Clean URL
-        window.history.replaceState({}, document.title, "/user/dashboard");
-    
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        return;
+    }
+
+    // 🟡 DEFAULT
+    console.log("⚪ DEFAULT LOAD");
+
+    const isRedirecting = sessionStorage.getItem("googleRedirect");
+
+    if (isRedirecting === "true") {
+
+        requestAnimationFrame(() => {
+
+            const btn = document.getElementById("importBtn");
+            const label = document.getElementById("importBtnText");
+
+            if (btn) {
+                btn.disabled = false;
+                btn.classList.remove("opacity-50", "cursor-not-allowed");
+            }
+
+            if (label) {
+                label.innerText = "Import Google Contacts";
+            }
+
+            console.log("✅ FINAL FALLBACK RESET");
+
+        });
+
+        return;
+    }
 
 };
 
@@ -154,3 +201,22 @@ function startProgressPolling() {
 
     }, 800);
 }
+
+// 🔥 BACK BUTTON CACHE FIX (VERY IMPORTANT)
+window.addEventListener("pageshow", function (event) {
+
+    console.log("🔁 PAGE SHOW EVENT");
+
+    const btn = document.getElementById("importBtn");
+    const label = document.getElementById("importBtnText");
+
+    if (btn) {
+        btn.disabled = false;
+        btn.classList.remove("opacity-50", "cursor-not-allowed");
+    }
+
+    if (label) {
+        label.innerText = "Import Google Contacts";
+    }
+
+});

@@ -27,11 +27,18 @@ public class GoogleContactService {
         int restored = 0;
         int skipped = 0;
 
-        List<Contact> allExisting = contactRepository.findByUserId(user.getId());
-        Map<String, Contact> contactMap = new HashMap<>();
-        for (Contact c : allExisting) {
+        Map<String, Contact> activeMap = new HashMap<>();
+        Map<String, Contact> allMap = new HashMap<>();
+
+        List<Contact> contacts = contactRepository.findByUserId(user.getId());
+
+        for (Contact c : contacts) {
             if (c.getPhone() != null) {
-                contactMap.put(c.getPhone(), c);
+                allMap.put(c.getPhone(), c);
+            }
+
+            if (c.isFlag()) {
+                activeMap.put(c.getPhone(), c);
             }
         }
 
@@ -57,15 +64,21 @@ public class GoogleContactService {
                 continue;
             }
 
-            // 2. check by map (No DB call inside loop!)
-            if (contactMap.containsKey(phone)) {
-                Contact existing = contactMap.get(phone);
+           if (activeMap.containsKey(phone)) {
+                skipped++;
+                continue;
+            }
+            if (allMap.containsKey(phone)) {
+                Contact existing = allMap.get(phone);
 
                 // Case: Soft-deleted Google Contact for restoration
                 if (existing.getSource() == ContactSource.GOOGLE && !existing.isFlag()) {
                     updateDetails(existing, name, email);
                     existing.setFlag(true);
-                    contactRepository.save(existing); 
+                    contactToSave.add(existing);
+
+
+                    activeMap.put(phone, existing);
                     restored++;
                 } else {
                     // Case: Already active or Manual contact
@@ -79,7 +92,9 @@ public class GoogleContactService {
             setBasicFields(contact, name, email, phone, user);
             contactToSave.add(contact);
 
-            contactMap.put(phone, contact);
+            activeMap.put(phone, contact);
+            allMap.put(phone, contact);
+
             saved++;
         }
 
@@ -87,7 +102,7 @@ public class GoogleContactService {
             contactRepository.saveAll(contactToSave);
         }
 
-        return new ImportResult(saved, restored, skipped);
+        return new ImportResult(saved + restored, restored, skipped);
     }
 
     private void updateDetails(Contact c, String name, String email) {
@@ -123,10 +138,12 @@ public class GoogleContactService {
 
     private String extractEmail(GooglePerson p) {
         return (p.getEmailAddresses() != null && !p.getEmailAddresses().isEmpty())
-                ? p.getEmailAddresses().get(0).getValue(): null;
+                ? p.getEmailAddresses().get(0).getValue()
+                : null;
     }
 
     private String extractPhone(GooglePerson p) {
-        return (p.getPhoneNumbers() != null && !p.getPhoneNumbers().isEmpty()) ? p.getPhoneNumbers().get(0).getValue(): null;
+        return (p.getPhoneNumbers() != null && !p.getPhoneNumbers().isEmpty()) ? p.getPhoneNumbers().get(0).getValue()
+                : null;
     }
 }

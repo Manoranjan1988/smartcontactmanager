@@ -62,5 +62,6 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
         int softDeleteAllGoogleContacts(@Param("userId") Long userId, @Param("source") ContactSource source);
         
         List<Contact> findByUserId(Long userId);
+        List<Contact> findByUserIdAndFlagTrue(Long userId);
 
 }
