@@ -89,8 +89,13 @@ public class SmartController {
 
             User user = userService.getUserByEmail(email);
 
-            String message = "Account inactive. Verify your email.";
+            String message = "Your account is not verified. Please verify your email.";
             boolean showResend = true;
+
+            if(user != null && user.getVerificationToken() == null) {
+            message = "Your account is deactivated. Please contact admin.";
+            showResend = false;
+            }
 
             if (user != null && user.getResendBlockedUntil() != null &&
                     user.getResendBlockedUntil().isAfter(LocalDateTime.now())) {
@@ -122,7 +127,7 @@ public class SmartController {
 
                 case "bad" -> "Wrong credentials! Please try again.";
                 case "oauth" -> "OAuth login failed. Please try again.";
-                case "invalid_email" -> "Email not verified from provider";
+                case "verify_email" -> "Email not verified from provider";
                 case "inactive_user" -> "User inactive by Admin, Contact for support";
                 default -> "Invalid Username & Password.";
             };
@@ -141,6 +146,33 @@ public class SmartController {
     public String aboutHandler(Model model) {
         model.addAttribute("title", "About - Smart Contact Manager");
         return "public/about";
+    }
+
+    /* Contactus Page handler */
+    @GetMapping("contactus")
+    public String contactUsHandler(Model model) {
+        model.addAttribute("title", "Contact us - Smart Contact Manager");
+        return "public/contactus";
+    }
+    /* Terms Page handler */
+    @GetMapping("terms")
+    public String termsHandler(Model model) {
+        model.addAttribute("title", "Terms - Smart Contact Manager");
+        return "public/terms";
+    }
+
+    /* privacy Policy Page handler */
+    @GetMapping("privacy")
+    public String privacyHandler(Model model) {
+        model.addAttribute("title", "Privacy & Policy - Smart Contact Manager");
+        return "public/privacy";
+    }
+
+    /* refund Policy Page handler */
+    @GetMapping("refund")
+    public String refundHandler(Model model) {
+        model.addAttribute("title", "Refund Policy - Smart Contact Manager");
+        return "public/refund";
     }
 
     /* Signup Processing Page handler */

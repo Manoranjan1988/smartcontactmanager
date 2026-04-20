@@ -19,10 +19,9 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.smartcontact.config.CustomUserPrincipal;
+import com.smartcontact.config.SessionUtils;
 import com.smartcontact.entities.User;
 import com.smartcontact.service.UserService;
 
@@ -35,6 +34,9 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private SessionUtils sessionUtils;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -74,15 +76,18 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 providerId,
                 "GITHUB");
 
-        if (!"active".equalsIgnoreCase(user.getStatus()) || user.getVerificationToken() != null) {
+        if (user.getVerificationToken() != null && "SELF".equals(user.getProvided())) {
+                sessionUtils.saveEmailInSession(email);
+                log.info("GOOGLE user email saved in session: {}", email);
+                throw new OAuth2AuthenticationException(
+                        new OAuth2Error("email_not_verified", "Email not verified", null));
+            }
 
-            ServletRequestAttributes attr 
-                = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-                attr.getRequest().getSession().setAttribute("LOGIN_EMAIL", email);
-                log.info("Google user email saved in session: {}", email);
-            throw new OAuth2AuthenticationException(
-                    new OAuth2Error("disabled", "Account is not active", null));
-        }
+            if(!"active".equalsIgnoreCase(user.getStatus())){
+                sessionUtils.saveEmailInSession(email);
+                throw new OAuth2AuthenticationException(
+                new OAuth2Error("disabled", "Account disabled", null));
+            }
 
         return new CustomUserPrincipal(
                 user.getEmail(),

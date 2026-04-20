@@ -37,8 +37,9 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         log.error("Exception type:{} ", exception.getClass().getSimpleName());
         String errorType = "bad";
 
-        String email = (String) request.getSession().getAttribute("LOGIN_EMAIL");
-
+        String email = (String) request.getSession().getAttribute(SessionUtils.LOGIN_EMAIL);        
+        request.getSession().removeAttribute(SessionUtils.LOGIN_EMAIL);
+        
         if (email == null) {
             email = request.getParameter("username");
             request.getSession().setAttribute("LOGIN_EMAIL", email);
@@ -65,8 +66,8 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
                 } else {
                     errorType = "disabled";
                 }
-            } else if ("invalid_email".equals(code)) {
-                errorType = "invalid_email";
+            } else if ("email_not_verified".equals(code)) {
+                errorType = "verify_email";
             } else {
                 errorType = "oauth";
             }

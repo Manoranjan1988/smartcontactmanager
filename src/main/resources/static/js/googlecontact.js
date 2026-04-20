@@ -1,15 +1,12 @@
 // 🔥 Button Click → Start OAuth Flow
 function startGoogleImport() {
 
-    if (sessionStorage.getItem("importStarted") === "true") return;
-
-    sessionStorage.setItem("importStarted", "true");
-
     const btn = document.getElementById("importBtn");
-    const label = document.getElementById("importBtnText"); 
+    const label = document.getElementById("importBtnText");
+
     if (btn) {
         btn.disabled = true;
-        if (label) label.innerText = "Starting...";
+        if (label) label.innerText = "Redirecting...";
         btn.classList.add("opacity-50", "cursor-not-allowed");
     }
 
@@ -20,15 +17,38 @@ function startGoogleImport() {
 // 🔥 Page Load → Resume Import Flow
 window.onload = function () {
 
-    if (sessionStorage.getItem("importStarted") === "true") {
+    const params = new URLSearchParams(window.location.search);
+    const importStatus = params.get("import");
+
+    if (importStatus !== "success") {
+        
+        sessionStorage.removeItem("importStarted");
+
+        const btn = document.getElementById("importBtn");
+        const label = document.getElementById("importBtnText");
+
+        if (btn) {
+            btn.disabled = false;
+            if (label) label.innerText = "Import Google Contacts";
+            btn.classList.remove("opacity-50", "cursor-not-allowed");
+        }
+
+        return; // 🔥 STOP here
+    }
+    
+        //SUCCESS -> START IMPORT
+        sessionStorage.setItem("importStarted", "true");
 
         document.getElementById("importOverlay").classList.remove("hidden");
 
-        // start backend import
         fetch("/user/test-api");
 
         startProgressPolling();
-    }
+
+        //  Clean URL
+        window.history.replaceState({}, document.title, "/user/dashboard");
+    
+
 };
 
 
@@ -93,7 +113,7 @@ function startProgressPolling() {
                     sessionStorage.removeItem("importStarted");
 
                     const btn = document.getElementById("importBtn");
-                    const label = document.getElementById("importBtnText"); 
+                    const label = document.getElementById("importBtnText");
                     if (btn) {
                         btn.disabled = false;
                         if (label) label.innerText = "Import Google Contacts";
@@ -105,12 +125,12 @@ function startProgressPolling() {
                         title: "Import Completed 🎉",
                         text: `Saved: ${data.saved}, Skipped: ${data.skipped}`,
                         color: '#fff',
-                        background: '#1e293b', 
-                        timer:3000,
-                        timerProgressBar:true,
-                        showConfirmButton:true,
+                        background: '#1e293b',
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showConfirmButton: true,
                         customClass: {
-                            htmlContainer: 'text-center' 
+                            htmlContainer: 'text-center'
                         }
                     });
 

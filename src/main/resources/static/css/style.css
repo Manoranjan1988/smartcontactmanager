@@ -99,14 +99,14 @@ footer.footer a:hover {
 .footer-social-icons a {
     color: #ffffff;
     transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Bounce animation curve */
-    display: inline-block; /* Animation ke liye zaroori hai */
+    display: inline-block; 
     text-decoration: none;
 }
 
 /* Hover par Bounce Effect */
 .footer-social-icons a:hover {
     color: #00d4ff !important; /* Cyan color on hover */
-    transform: translateY(-5px) scale(1.2); /* Upar jayega aur thoda bada hoga */
+    transform: translateY(-3px) scale(1.1); /* Upar jayega aur thoda bada hoga */
 }
 
 /* Footer Links (Home, About etc) ka Styling */
@@ -118,7 +118,7 @@ footer.footer a:hover {
 
 .footer-links a:hover {
     color: #ffffff !important;
-    letter-spacing: 1px; /* Hover par letters thode failenge (Premium feel) */
+    
 }
 .my-name{
     font-size: 12px;
@@ -368,4 +368,43 @@ footer.footer a:hover {
 
 .super-animate {
     animation: floatZoom 5s ease-in-out infinite;
+}
+
+/* contactus page */
+
+.contact-input {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    transition: 0.3s;
+}
+
+.contact-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+}
+
+@media (max-width: 768px) {
+
+    .contact-section .row.g-0 {
+        flex-direction: column;
+    }
+
+    .contact-section .col-md-5,
+    .contact-section .col-md-7 {
+        border-radius: 20px !important;
+    }
+
+    .contact-section img {
+        height: 250px !important;
+    }
+}
+
+/* terms */
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
 }
