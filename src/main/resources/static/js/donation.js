@@ -41,6 +41,10 @@ async function startDonation() {
 
         const orderData = await response.json();
         console.log("Response received");
+        payBtn.disabled = false;
+                    payBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    btnText.innerText = "Proceed to Pay";
+                    btnIcon.className = "fa-solid fa-arrow-right group-hover:translate-x-1 transition";
         // Check if Backend sent an error (Like amount < 1)
         if (!response.ok || orderData.status === "error") {
             Swal.fire({

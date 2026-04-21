@@ -1,8 +1,12 @@
 console.log("JS started")
 
+window.history.scrollRestoration = "manual";
+
 AOS.init({
-        duration: 1000,
-        once: true
+        duration: 800,
+        once: true,
+        easing: 'ease-in-out',
+        mirror: false
     });
 
 window.history.scrollRestoration = "manual";
