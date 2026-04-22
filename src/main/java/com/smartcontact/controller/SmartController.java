@@ -241,19 +241,17 @@ public class SmartController {
 
     /* Email Verification handler */
     @GetMapping("/verify")
-    public String verifyAccount(@RequestParam("token") String token, Model model, RedirectAttributes ra) {
+    public String verifyAccount(@RequestParam("token") String token, Model model) {
         System.out.println("Verify Handler Started.....");
         boolean isVerified = userService.verifyUser(token);
         if (isVerified) {
-            ra.addFlashAttribute("msg", "Account activated! You can now login.");
-            ra.addFlashAttribute("type", "success");
-            return "redirect:/public/signup";
+            model.addAttribute("msg", "Account activated! You can now login.");
+            model.addAttribute("type", "success");
         } else {
-            ra.addFlashAttribute("msg", "Invalid or expired link!");
-            ra.addFlashAttribute("type", "danger");
-            return "redirect:/public/signup";
+            model.addAttribute("msg", "Invalid or expired link!");
+            model.addAttribute("type", "error");
         }
-
+         return "public/verify-result";
     }
 
     /* Forgot Password handler */

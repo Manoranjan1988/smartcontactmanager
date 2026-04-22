@@ -175,4 +175,25 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
+// registartion form toggle
+document.addEventListener("DOMContentLoaded", () => {
+    const toggleBtn = document.getElementById("verifyPassword"); // Ye SPAN hai
+    const passwordInput = document.getElementById("passwordField");   // Ye INPUT hai
+    const eyeIcon = document.getElementById("regEyeIcon");
+
+    if (toggleBtn && passwordInput) {
+        toggleBtn.addEventListener('click', () => {
+            // Toggle logic
+            const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+            passwordInput.setAttribute("type", type);
+            
+            // Icon toggle
+            if (eyeIcon) {
+                eyeIcon.classList.toggle("bi-eye-fill");
+                eyeIcon.classList.toggle("bi-eye-slash-fill");
+            }
+        });
+    }
+});
+
 

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz" layout:decorate="~{base}">
+
+<head>
+    <title th:text="${title}">Email Verification - SCM</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+
+            <div class="card shadow-lg text-center"
+                style="max-width: 420px; width: 100%; padding: 20px; border-radius: 12px;">
+
+                <h4 th:if="${type == 'success'}" class="text-success mb-2">
+                    ✅ Account Verified
+                </h4>
+
+                <h4 th:if="${type == 'error'}" class="text-danger mb-2">
+                    ❌ Verification Failed
+                </h4>
+
+                <p th:text="${msg}" class="mt-2 mb-3 small"></p>
+
+                <!-- Login Button -->
+                <a th:if="${type == 'success'}" th:href="@{/public/login}" class="btn btn-success btn-sm px-3 py-2">
+                    Login Now →
+                </a>
+
+                <!-- Retry -->
+                <a th:if="${type == 'error'}" th:href="@{/public/signup}" class="btn btn-danger btn-sm px-3 py-2">
+                    Signup Again
+                </a>
+
+                <!-- Hint -->
+                <p class="mt-3 text-muted" style="font-size:12px;">
+                    If opened inside an app, tap ⋮ and choose
+                    <b>Open in browser</b>
+                </p>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <script>
+        setTimeout(() => {
+            window.location.href = "/public/login";
+        }, 4000);
+    </script>
+</body>
+
+</html>
